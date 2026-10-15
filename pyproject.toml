@@ -12,7 +12,14 @@ dependencies = [
     "scikit-learn>=1.4.0",
     "plotly>=5.20.0",
     "pandas>=2.2.0",
+    "matplotlib>=3.8.0",
 ]
+
+[tool.uv]
+package = false
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [build-system]
 requires = ["hatchling"]

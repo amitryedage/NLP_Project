@@ -25,9 +25,11 @@ build/
 # Tests
 tests/
 
-# PRD and project specifications
+# PRD, Demo Script, and Project Reports
 PRD_NLP_Visual_Lab.md
 *PRD*.md
+DEMO_SCRIPT.md
+PROJECT_REPORT.md
 
 # OS generated files
 .DS_Store

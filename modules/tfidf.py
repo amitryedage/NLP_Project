@@ -137,10 +137,12 @@ def render_tfidf_tab():
     st.subheader(f"🔢 {vectorizer_mode.split('(')[0].strip()} Feature Matrix")
     st.caption("Rows represent documents; columns represent unique vocabulary tokens:")
 
-    if decimals == 3:
-        formatted_df = df_matrix.style.format("{:.3f}").background_gradient(cmap="Blues", axis=None)
+    # Format numbers cleanly and display as DataFrame (zero external dependencies)
+    format_fn = (lambda x: f"{x:.3f}") if decimals == 3 else (lambda x: f"{x:d}")
+    if hasattr(df_matrix, "map"):
+        formatted_df = df_matrix.map(format_fn)
     else:
-        formatted_df = df_matrix.style.format("{:d}").background_gradient(cmap="Blues", axis=None)
+        formatted_df = df_matrix.applymap(format_fn)
 
     st.dataframe(formatted_df, use_container_width=True)
 
