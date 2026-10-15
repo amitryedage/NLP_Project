@@ -3,9 +3,16 @@
 An interactive educational web application designed for students and NLP beginners to *visualize* and interactively explore fundamental Natural Language Processing pipelines live on custom input text.
 
 * **Course:** Natural Language Processing (1ADPC402)
-* **Department:** Artificial Intelligence and Data Science, ADCET Ashta
-* **Theme:** Light Only
-* **Tech Stack:** Python 3.12, Astral `uv`, Streamlit, spaCy (`en_core_web_md`), NLTK, scikit-learn, Plotly, pandas
+* **Department:** Artificial Intelligence and Data Science
+* **Institution:** Annasaheb Dange College of Engineering and Technology (ADCET), Ashta
+* **Theme:** Strict Light Theme
+* **Tech Stack:** Python 3.12, Astral `uv`, Streamlit, spaCy (`en_core_web_md`), NLTK, scikit-learn, Plotly, pandas, pytest
+
+---
+
+## 📑 Academic Documentation & Presentation Assets
+* 📘 **[Project Report](PROJECT_REPORT.md):** Complete academic micro-project report (Introduction, Problem Statement, Objectives, Methodology, Results, Limitations, Future Scope, References).
+* 🎤 **[Demo Script](DEMO_SCRIPT.md):** 3-to-5 minute live demonstration walkthrough with universal benchmark test sentences.
 
 ---
 
@@ -72,10 +79,10 @@ NLP_Project/
 │   └── config.toml          # Enforces light theme specification
 ├── .python-version          # Pinned to Python 3.12
 ├── pyproject.toml           # uv project configuration and dependencies
-├── app.py                   # Main entry point with 6 interactive tabs
+├── app.py                   # Main entry point with 6 interactive tabs & global presets
 ├── modules/
 │   ├── __init__.py
-│   ├── tokenization.py      # Tab 1: Word, Sentence, spaCy tokenization
+│   ├── tokenization.py      # Tab 1: Word, Sentence, spaCy tokenization + Devanagari
 │   ├── stemming_lemma.py    # Tab 2: Porter, Snowball, WordNet lemmatizer
 │   ├── pos_ner.py           # Tabs 3 & 4: POS tagging & DisplaCy NER
 │   ├── tfidf.py             # Tab 5: BoW and TF-IDF matrices & heatmaps
@@ -85,7 +92,9 @@ NLP_Project/
 │   ├── theme.py             # Pastel chip generator, colors & custom CSS
 │   └── nlp_loader.py        # Streamlit-cached spaCy and NLTK resource loader
 ├── tests/
-│   └── test_modules.py      # Module sanity tests
+│   └── test_modules.py      # Pytest module sanity tests
+├── PROJECT_REPORT.md        # Academic submission report
+├── DEMO_SCRIPT.md           # 3-5 minute presentation script
 ├── PRD_NLP_Visual_Lab.md    # Product Requirements Document
 └── README.md
 ```
@@ -94,9 +103,21 @@ NLP_Project/
 
 ## 📋 Features Overview
 
-1. **✂️ Tokenization:** Live comparison between NLTK Word, NLTK Sentence, and spaCy Tokenizers with pastel chips and indexed tables.
+1. **✂️ Tokenization:** Live comparison between NLTK Word, NLTK Sentence, and spaCy Tokenizers with pastel chips and indexed tables. Includes bonus Unicode-aware Devanagari (Marathi/Hindi) tokenization.
 2. **🌱 Stemming vs. Lemmatization:** Side-by-side comparison of Porter, Snowball, and WordNet with highlighting of inflectional differences.
 3. **🏷️ POS Tagging:** Color-coded grammatical tags with human-readable explanations via `spacy.explain()`.
 4. **🔍 Named Entity Recognition (NER):** DisplaCy visualizer for PERSON, ORG, GPE, DATE, and more.
 5. **📊 TF-IDF & Bag of Words:** Matrix inspector and Plotly heatmap for multi-document corpora.
 6. **🌌 Word Embeddings:** Interactive 2D PCA projection of 300D spaCy vectors and live cosine similarity calculator.
+7. **⚡ Global Example Presets:** One-click benchmark sentence loader across tabs.
+
+---
+
+## ☁️ Optional Deployment (Streamlit Community Cloud)
+
+If deploying to Streamlit Community Cloud:
+```bash
+# Export requirements.txt if needed by cloud platform
+uv pip compile pyproject.toml -o requirements.txt
+```
+Connect your GitHub repository to [share.streamlit.io](https://share.streamlit.io) and select `app.py` as the entry file.

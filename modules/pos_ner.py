@@ -60,9 +60,10 @@ def render_pos_tab():
     )
 
     # 2. User Input Area
+    default_val = st.session_state.get("shared_input", DEFAULT_POS_TEXT)
     user_text = st.text_area(
         label="Enter sentence for POS tagging:",
-        value=DEFAULT_POS_TEXT,
+        value=default_val,
         height=95,
         max_chars=1000,
         help="Type or paste any text to see real-time grammatical tagging.",
@@ -229,9 +230,10 @@ def render_ner_tab():
     )
 
     # 2. User Input Area
+    default_val = st.session_state.get("shared_input", DEFAULT_NER_TEXT)
     user_text = st.text_area(
         label="Enter text for Named Entity Recognition:",
-        value=DEFAULT_NER_TEXT,
+        value=default_val,
         height=95,
         max_chars=1000,
         help="Type or paste any text mentioning people, places, dates, or organizations.",

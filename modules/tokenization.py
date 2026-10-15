@@ -46,12 +46,14 @@ def render_tokenization_tab():
     )
 
     # 2. User Input Area
+    default_val = st.session_state.get("shared_input", DEFAULT_TEXT)
     user_text = st.text_area(
         label="Enter your sentence or paragraph to tokenize:",
-        value=DEFAULT_TEXT,
+        value=default_val,
         height=110,
         max_chars=1200,
         help="Type or paste any text. The app will tokenize it in real-time.",
+        key="token_input_text_area",
     )
 
     # Edge Case: Empty or whitespace-only input
@@ -180,3 +182,22 @@ def render_tokenization_tab():
             * **Punctuation:** Real NLP tokenizers peel commas, periods, and quotation marks into separate tokens rather than treating `"seconds!"` as a distinct word from `"seconds"`.
             """
         )
+
+    # 9. Optional Bonus: Marathi / Indic Script Tokenization (Task 6 Item 7)
+    with st.expander("🇮🇳 Optional Bonus: Marathi / Hindi (Devanagari) Tokenization Demo"):
+        st.markdown(
+            "Explore how NLP handles non-Latin scripts like **Marathi** and **Hindi** where compound characters (जोडाक्षरे), "
+            "vowel matras (मात्रा), and danda punctuation (`।`) require Unicode-aware segmentation:"
+        )
+        default_marathi = "नैसर्गिक भाषा प्रक्रिया (NLP) संगणकाला मानवी भाषा समजण्यास मदत करते. तुम्ही अभ्यास करत आहात का?"
+        indic_text = st.text_input("Enter Marathi / Hindi text:", value=default_marathi, key="indic_token_input")
+        if indic_text.strip():
+            import re
+            # Unicode-aware word and punctuation regex for Devanagari
+            indic_tokens = re.findall(r'[\u0900-\u097F]+|[a-zA-Z0-9]+|[^\s\w]', indic_text, re.UNICODE)
+            indic_chips = []
+            for idx, itok in enumerate(indic_tokens):
+                color = PASTEL_COLORS[idx % len(PASTEL_COLORS)]
+                indic_chips.append(chip(itok, color=color, subtitle=f"#{idx+1}"))
+            st.markdown(f'<div class="chip-container">{" ".join(indic_chips)}</div>', unsafe_allow_html=True)
+            st.caption(f"Total Devanagari tokens extracted: **{len(indic_tokens)}**")

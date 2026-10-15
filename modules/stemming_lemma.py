@@ -64,12 +64,14 @@ def render_stemming_lemma_tab():
         )
 
     if input_type == "Full Sentence":
+        default_val = st.session_state.get("shared_input", DEFAULT_SENTENCE)
         user_input = st.text_area(
             "Enter sentence to compare roots:",
-            value=DEFAULT_SENTENCE,
+            value=default_val,
             height=90,
             max_chars=1000,
             help="Every word in the sentence will be extracted and tested through each stemmer and lemmatizer.",
+            key="stem_input_sentence",
         )
     else:
         user_input = st.text_area(
