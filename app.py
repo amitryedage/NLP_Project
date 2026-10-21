@@ -29,20 +29,28 @@ st.set_page_config(
 # Inject Custom Light Theme Styles
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-# Curated Sample Sentences for Global Testing
+# Curated Sample Sentences for Global Testing across Diverse Domains
 SAMPLE_SENTENCES = {
-    "🌐 NLP & Language Intro": (
+    "🌐 NLP Intro": (
         "Natural Language Processing (NLP) enables computers to understand, interpret, "
         "and manipulate human speech and text. Don't you think it's fascinating? "
         "In 2026, modern AI models can process millions of sentences in seconds!"
     ),
-    "🚀 Elon Musk & Industry NER": (
+    "🚀 Industry & NER": (
         "Elon Musk visited Mumbai on 5 May 2024 to announce Tesla's $2 billion investment "
         "alongside Indian Prime Minister Narendra Modi and local officials."
     ),
-    "🌱 Morphological Studies": (
+    "🌱 Morphology": (
         "The experienced researchers were studying flying bats, green leaves, "
         "and various connections while running happily on their feet."
+    ),
+    "🔬 Healthcare": (
+        "The clinical oncologist administered antibody immunotherapy to leukemia patients, "
+        "observing significant tumor regression during pharmaceutical trials in Boston."
+    ),
+    "🐦 Social Tweet": (
+        "Loving the new #GenerativeAI breakthroughs in 2026! Can't wait to test Gemini & spaCy models. "
+        "Are you excited? 🔥✨ #NLP #MachineLearning"
     ),
 }
 
@@ -69,8 +77,8 @@ with col_badge:
 
 # --- Try an Example Toolbar ---
 with st.expander("⚡ Try Quick Preset Sentences (Click to load across tabs)", expanded=False):
-    st.markdown("<span style='font-size: 0.9rem; color: #4B5563;'>Select a preset to auto-populate test text:</span>", unsafe_allow_html=True)
-    p_cols = st.columns(3)
+    st.markdown("<span style='font-size: 0.9rem; color: #4B5563;'>Select a preset domain to auto-populate test text across Tabs 1 to 4:</span>", unsafe_allow_html=True)
+    p_cols = st.columns(len(SAMPLE_SENTENCES))
     for idx, (label, sent) in enumerate(SAMPLE_SENTENCES.items()):
         with p_cols[idx]:
             if st.button(f"{label}", use_container_width=True, key=f"btn_preset_{idx}"):
@@ -78,7 +86,7 @@ with st.expander("⚡ Try Quick Preset Sentences (Click to load across tabs)", e
                 st.rerun()
 
     if "shared_input" in st.session_state:
-        st.info(f"**Active Preset Loaded:** \"{st.session_state['shared_input'][:90]}...\"")
+        st.info(f"**Active Preset Loaded:** \"{st.session_state['shared_input'][:95]}...\"")
         if st.button("Reset to Defaults", key="reset_preset"):
             del st.session_state["shared_input"]
             st.rerun()

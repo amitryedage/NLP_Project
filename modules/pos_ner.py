@@ -213,6 +213,15 @@ def render_pos_tab():
     df_table = pd.DataFrame(token_records)[["Index", "Word", "Universal POS", "Fine Tag", "Grammatical Meaning", "Lemma"]]
     st.dataframe(df_table, use_container_width=True, hide_index=True)
 
+    # Export POS Table Button
+    st.download_button(
+        label="📥 Download POS Breakdown (CSV)",
+        data=df_table.to_csv(index=False).encode("utf-8"),
+        file_name="pos_tagging_breakdown.csv",
+        mime="text/csv",
+        key="btn_download_pos_table"
+    )
+
     # 10. Educational Insights Box
     with st.expander("💡 Deep Dive: Contextual Ambiguity in POS Tagging"):
         st.markdown(
@@ -368,6 +377,15 @@ def render_ner_tab():
     st.subheader("📋 Entity Details Table")
     df_entities = pd.DataFrame(entity_records)[["Entity Text", "Label / Type", "Category Meaning", "Start Char", "End Char"]]
     st.dataframe(df_entities, use_container_width=True, hide_index=True)
+
+    # Export NER Entities Button
+    st.download_button(
+        label="📥 Download Entities Table (CSV)",
+        data=df_entities.to_csv(index=False).encode("utf-8"),
+        file_name="ner_entities.csv",
+        mime="text/csv",
+        key="btn_download_ner_table"
+    )
 
     # 9. Educational Takeaway Box
     with st.expander("💡 Deep Dive: How spaCy Identifies Named Entities"):

@@ -103,13 +103,13 @@ NLP_Project/
 
 ## 📋 Features Overview
 
-1. **✂️ Tokenization:** Live comparison between NLTK Word, NLTK Sentence, and spaCy Tokenizers with pastel chips and indexed tables. Includes bonus Unicode-aware Devanagari (Marathi/Hindi) tokenization.
-2. **🌱 Stemming vs. Lemmatization:** Side-by-side comparison of Porter, Snowball, and WordNet with highlighting of inflectional differences.
-3. **🏷️ POS Tagging:** Color-coded grammatical tags with human-readable explanations via `spacy.explain()`.
-4. **🔍 Named Entity Recognition (NER):** DisplaCy visualizer for PERSON, ORG, GPE, DATE, and more.
+1. **✂️ Tokenization:** Live comparison between NLTK Word, NLTK Sentence, and spaCy Tokenizers with pastel chips, **Stopwords Highlight & Filtering** with volume reduction metrics, an interactive **Zipf's Law Linguistic Distribution Plot** (log-log coordinates), bonus Unicode-aware Devanagari tokenization, and CSV export.
+2. **🌱 Stemming vs. Lemmatization:** Side-by-side comparison of Porter, Snowball, and WordNet with morphological discrepancy chips, an interactive **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculating alignment costs via Plotly heatmaps, and CSV export.
+3. **🏷️ POS Tagging:** Color-coded grammatical tags with human-readable explanations via `spacy.explain()`, live **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), and CSV export.
+4. **🔍 Named Entity Recognition (NER):** DisplaCy visualizer for PERSON, ORG, GPE, DATE, and more with character spans, entity definition chips, and CSV export.
 5. **📊 TF-IDF & Bag of Words:** Numerical matrix inspector with one-click CSV export, Document-Word heatmap, **Pairwise Inter-Document Similarity Heatmap**, and a live **Information Retrieval (Search Engine Simulator)** that ranks corpus documents against user queries using cosine similarity.
 6. **🌌 Word Embeddings:** Interactive 2D PCA projection with semantic trajectory shift arrows, 3D vector space orbit, live cosine similarity comparator, **Top-$K$ Nearest Semantic Neighbors Explorer** with similarity ranking charts, **Parallelogram Law Vector Geometry visualizer** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), and 2D coordinates CSV export.
-7. **⚡ Global Example Presets:** One-click benchmark sentence loader across tabs.
+7. **⚡ Global Example Presets:** One-click benchmark sentence loader across 5 diverse domains (NLP, Industry/Finance, Morphology, Biomedical/Healthcare, and Social Media Tweets).
 
 ---
 

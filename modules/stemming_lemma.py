@@ -4,6 +4,8 @@ Implements Tab 2 of NLP Visual Lab adhering to PRD specifications.
 """
 import streamlit as st
 import pandas as pd
+import numpy as np
+import plotly.express as px
 import nltk
 from utils.theme import (
     PASTEL_BLUE,
@@ -206,6 +208,104 @@ def render_stemming_lemma_tab():
     else:
         styled_df = styler.applymap(highlight_diff, subset=["Stem ≠ Lemma"])
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+    # Export Comparison Table Button
+    st.download_button(
+        label="📥 Download Comparison Table (CSV)",
+        data=df_compare.to_csv(index=False).encode("utf-8"),
+        file_name="stem_vs_lemma_comparison.csv",
+        mime="text/csv",
+        key="btn_download_stem_compare"
+    )
+
+    # 7b. Minimum Edit Distance (Levenshtein Distance) Matrix Visualizer
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("📏 Minimum Edit Distance (Levenshtein Matrix)")
+    st.caption("Measures morphological dissimilarity by calculating the minimum cost alignment (insertions, deletions, substitutions):")
+
+    # Presets for quick comparison
+    col_ep1, col_ep2, col_ep3, col_ep4 = st.columns(4)
+    with col_ep1:
+        if st.button("Preset: 'studies' ➔ 'study'", use_container_width=True, key="btn_ed_p1"):
+            st.session_state["ed_src"] = "studies"
+            st.session_state["ed_tgt"] = "study"
+    with col_ep2:
+        if st.button("Preset: 'studies' ➔ 'studi'", use_container_width=True, key="btn_ed_p2"):
+            st.session_state["ed_src"] = "studies"
+            st.session_state["ed_tgt"] = "studi"
+    with col_ep3:
+        if st.button("Preset: 'running' ➔ 'run'", use_container_width=True, key="btn_ed_p3"):
+            st.session_state["ed_src"] = "running"
+            st.session_state["ed_tgt"] = "run"
+    with col_ep4:
+        if st.button("Preset: 'intention' ➔ 'execution'", use_container_width=True, key="btn_ed_p4"):
+            st.session_state["ed_src"] = "intention"
+            st.session_state["ed_tgt"] = "execution"
+
+    default_src = st.session_state.get("ed_src", "studies")
+    default_tgt = st.session_state.get("ed_tgt", "study")
+
+    col_w_src, col_w_tgt = st.columns(2)
+    with col_w_src:
+        word_src = st.text_input("Source Word (e.g. Inflected Form):", value=default_src, key="input_ed_src").strip().lower()
+    with col_w_tgt:
+        word_tgt = st.text_input("Target Word (e.g. Stem or Lemma):", value=default_tgt, key="input_ed_tgt").strip().lower()
+
+    if word_src and word_tgt:
+        m, n = len(word_src), len(word_tgt)
+        dp = np.zeros((m + 1, n + 1), dtype=int)
+
+        for i in range(m + 1):
+            dp[i][0] = i
+        for j in range(n + 1):
+            dp[0][j] = j
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                sub_cost = 0 if word_src[i - 1] == word_tgt[j - 1] else 1
+                dp[i][j] = min(
+                    dp[i - 1][j] + 1,        # deletion
+                    dp[i][j - 1] + 1,        # insertion
+                    dp[i - 1][j - 1] + sub_cost  # match / substitution
+                )
+
+        edit_dist = int(dp[m][n])
+        max_len = max(m, n, 1)
+        sim_ratio = (1.0 - (edit_dist / max_len)) * 100
+
+        # Metric summary row
+        ed_m1, ed_m2, ed_m3 = st.columns(3)
+        with ed_m1:
+            st.metric("Minimum Edit Distance", f"{edit_dist} operations")
+        with ed_m2:
+            st.metric("Morphological Similarity", f"{sim_ratio:.1f}%")
+        with ed_m3:
+            st.metric("Length Differential", f"|{m} - {n}| = {abs(m - n)} chars")
+
+        # DP Grid Heatmap
+        row_labels = ["#"] + list(word_src)
+        col_labels = ["#"] + list(word_tgt)
+
+        df_dp = pd.DataFrame(dp, index=row_labels, columns=col_labels)
+
+        fig_dp = px.imshow(
+            df_dp,
+            labels=dict(x=f"Target: '{word_tgt}'", y=f"Source: '{word_src}'", color="Edit Cost"),
+            x=col_labels,
+            y=row_labels,
+            color_continuous_scale="Purples",
+            text_auto=True,
+            template="plotly_white",
+        )
+        fig_dp.update_layout(
+            title=f"Dynamic Programming Grid: '{word_src}' ➔ '{word_tgt}' (Cost = {edit_dist})",
+            margin=dict(l=20, r=20, t=40, b=20),
+            height=300,
+            plot_bgcolor=COLOR_BG,
+            paper_bgcolor=COLOR_BG,
+            coloraxis_showscale=False,
+        )
+        st.plotly_chart(fig_dp, use_container_width=True)
 
     # 8. Educational Takeaway Box
     with st.expander("💡 Deep Dive: Porter vs. Snowball vs. WordNet Rules"):

@@ -4,7 +4,10 @@ Implements Tab 1 of NLP Visual Lab adhering to PRD specifications.
 """
 import streamlit as st
 import pandas as pd
+import numpy as np
+import plotly.express as px
 import nltk
+from spacy.lang.en.stop_words import STOP_WORDS as SPACY_STOP_WORDS
 from utils.theme import (
     PASTEL_COLORS,
     chip,
@@ -92,6 +95,13 @@ def render_tokenization_tab():
                 "and prepares tokens for part-of-speech tagging and parsing."
             )
 
+    # Stopword Filtering Controls
+    col_f1, col_f2 = st.columns([1, 1])
+    with col_f1:
+        filter_stopwords = st.checkbox("🚫 Highlight English Stopwords (e.g., 'the', 'is', 'in')", value=False, key="tok_filter_stop")
+    with col_f2:
+        hide_stopwords = st.checkbox("Hide Stopwords (Keep Content Words Only)", value=False, key="tok_hide_stop") if filter_stopwords else False
+
     st.markdown("---")
 
     # 4. Tokenization Execution
@@ -102,12 +112,14 @@ def render_tokenization_tab():
         ensure_nltk_data()
         tokens = nltk.word_tokenize(user_text)
         for idx, tok in enumerate(tokens):
+            is_stop = tok.lower() in SPACY_STOP_WORDS
             token_details.append({
                 "Index": idx + 1,
                 "Token": tok,
                 "Length": len(tok),
                 "Category": "Punctuation" if not tok.isalnum() else ("Numeric" if tok.isnumeric() else "Word"),
                 "Is Alphanumeric": tok.isalnum(),
+                "Is Stopword": is_stop,
             })
 
     elif "Sentence Tokenizer" in method:
@@ -135,7 +147,10 @@ def render_tokenization_tab():
                 "Is Punctuation": t.is_punct,
             })
 
-    # 5. Metrics Summary Cards (with Lexical Diversity / TTR)
+    # 5. Metrics Summary Cards (with Lexical Diversity / TTR & Stopword stats)
+    stopword_count = sum(1 for d in token_details if d.get("Is Stopword", False))
+    content_count = len(tokens) - stopword_count
+
     m1, m2, m3, m4, m5 = st.columns(5)
     with m1:
         st.metric(label="Total Tokens", value=len(tokens))
@@ -143,11 +158,18 @@ def render_tokenization_tab():
         unique_tokens = len(set(tokens))
         st.metric(label="Unique Tokens", value=unique_tokens)
     with m3:
-        avg_len = sum(len(t) for t in tokens) / max(len(tokens), 1)
-        st.metric(label="Avg Token Length", value=f"{avg_len:.1f} chars")
+        if filter_stopwords:
+            st.metric(label="Content Tokens", value=content_count)
+        else:
+            avg_len = sum(len(t) for t in tokens) / max(len(tokens), 1)
+            st.metric(label="Avg Token Length", value=f"{avg_len:.1f} chars")
     with m4:
-        punct_count = sum(1 for t in tokens if not t.isalnum())
-        st.metric(label="Punct / Special", value=punct_count)
+        if filter_stopwords:
+            stop_pct = (stopword_count / max(len(tokens), 1)) * 100
+            st.metric(label="Stopwords Filtered", value=f"{stopword_count} ({stop_pct:.0f}%)")
+        else:
+            punct_count = sum(1 for t in tokens if not t.isalnum())
+            st.metric(label="Punct / Special", value=punct_count)
     with m5:
         ttr = (unique_tokens / max(len(tokens), 1)) * 100
         st.metric(label="Lexical Diversity", value=f"{ttr:.1f}%", help="Type-Token Ratio (TTR): measures vocabulary richness.")
@@ -163,8 +185,14 @@ def render_tokenization_tab():
 
     chip_html_list = []
     for i, tok in enumerate(tokens):
-        color = PASTEL_COLORS[i % len(PASTEL_COLORS)]
-        chip_html_list.append(chip(text=tok, color=color, subtitle=f"#{i+1}"))
+        is_stop = tok.lower() in SPACY_STOP_WORDS
+        if hide_stopwords and is_stop:
+            continue
+        if filter_stopwords and is_stop:
+            chip_html_list.append(chip(text=tok, color="#F3F4F6", subtitle="STOP"))
+        else:
+            color = PASTEL_COLORS[i % len(PASTEL_COLORS)]
+            chip_html_list.append(chip(text=tok, color=color, subtitle=f"#{i+1}"))
 
     chips_container = f'<div class="chip-container">{" ".join(chip_html_list)}</div>'
     st.markdown(chips_container, unsafe_allow_html=True)
@@ -202,11 +230,81 @@ def render_tokenization_tab():
     else:
         st.info(f"Please enter at least {n_order} words to generate {ngram_choice.split()[0]}.")
 
+    # 7b. Zipf's Law Linguistic Distribution
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("📈 Zipf's Law Linguistic Distribution")
+    st.caption("Empirical word frequency vs. rank ($f(r) \\propto 1/r$). Zipf's law predicts a linear drop on log-log coordinates:")
+
+    zipf_words = [t.lower() for t in tokens if t.isalnum()]
+    if len(zipf_words) >= 4:
+        from collections import Counter
+        word_counts = Counter(zipf_words).most_common()
+        ranks = list(range(1, len(word_counts) + 1))
+        words_list = [w for w, _ in word_counts]
+        freqs = [cnt for _, cnt in word_counts]
+
+        # Theoretical Zipf curve: f(1) / r
+        f1 = freqs[0]
+        theoretical_zipf = [f1 / r for r in ranks]
+
+        df_zipf = pd.DataFrame({
+            "Rank": ranks,
+            "Word": words_list,
+            "Empirical Frequency": freqs,
+            "Theoretical Zipf (f1/r)": theoretical_zipf,
+        })
+
+        col_scale, _ = st.columns([2, 3])
+        with col_scale:
+            use_log = st.checkbox("Log-Log Scale Coordinates (Linearizes Zipf's curve)", value=True, key="zipf_log_toggle")
+
+        fig_zipf = px.scatter(
+            df_zipf,
+            x="Rank",
+            y="Empirical Frequency",
+            text="Word",
+            template="plotly_white",
+            title=f"Zipf's Law Distribution for Top {len(df_zipf)} Vocabulary Words",
+            log_x=use_log,
+            log_y=use_log,
+            color_discrete_sequence=[COLOR_PRIMARY]
+        )
+        fig_zipf.add_scatter(
+            x=df_zipf["Rank"],
+            y=df_zipf["Theoretical Zipf (f1/r)"],
+            mode="lines",
+            name="Ideal Zipf Curve (1/r)",
+            line=dict(color="#10B981", dash="dash", width=2)
+        )
+        fig_zipf.update_traces(
+            textposition="top center",
+            textfont=dict(size=11, color=COLOR_TEXT)
+        )
+        fig_zipf.update_layout(
+            height=340,
+            margin=dict(l=20, r=20, t=40, b=20),
+            plot_bgcolor=COLOR_BG,
+            paper_bgcolor=COLOR_BG,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig_zipf, use_container_width=True)
+    else:
+        st.info("Enter at least 4 words to generate Zipf's Law rank distribution.")
+
     # 8. Structured Table of Tokens
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Token Breakdown Table")
     df = pd.DataFrame(token_details)
     st.dataframe(df, use_container_width=True, hide_index=True)
+
+    # Export Token Table Button
+    st.download_button(
+        label="📥 Download Token Breakdown (CSV)",
+        data=df.to_csv(index=False).encode("utf-8"),
+        file_name="token_breakdown.csv",
+        mime="text/csv",
+        key="btn_download_token_table"
+    )
 
     # 8. Educational Takeaway / Comparison Card
     with st.expander("💡 Deep Dive: How Different Tokenizers Treat Contractions & Symbols"):

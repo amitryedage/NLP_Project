@@ -29,19 +29,23 @@
 
 ---
 
-### 0:45 – 1:30 | Tab 1: Tokenization & Contraction Splitting
-* **Action:** Click on the **✂️ Tokenization** tab. Highlight the live pastel chips.
+### 0:45 – 1:30 | Tab 1: Tokenization, Stopwords & Zipf's Law
+* **Action:** Click on the **✂️ Tokenization** tab. Toggle **"Highlight English Stopwords"**, scroll down to the **Zipf's Law Distribution Plot**, and point out the **Download CSV** button.
 * **Speaker:**
   > *"First is **Tokenization**, the foundational step where continuous text is segmented into discrete computational units.*
   >
   > *Notice our live token stream rendered as color-coded chips with guaranteed high-contrast dark text. If we switch between **NLTK Word Tokenizer** and **Sentence Tokenizer**, we can see how contractions like `Don't` are split into `Do` and `n't`, separating the auxiliary verb from the negative particle.*
   >
-  > *(Bonus) We also included a Unicode-aware Devanagari tokenization demonstration for Marathi and Hindi scripts."*
+  > *With our **Stopword Filter**, we can instantly isolate non-content grammatical filler words (`the`, `is`, `in`) with real-time volume reduction percentages.*
+  >
+  > *Scroll down to our **Zipf's Law Linguistic Distribution Plot**: it plots empirical word frequency against rank on log-log coordinates, visually demonstrating the principle that word frequency is inversely proportional to rank.*
+  >
+  > *(Bonus) We also included a Unicode-aware Devanagari tokenization demonstration for Marathi and Hindi scripts, and one-click CSV export."*
 
 ---
 
-### 1:30 – 2:15 | Tab 2: Stemming vs. Lemmatization
-* **Action:** Click on **🌱 Stem / Lemma** tab.
+### 1:30 – 2:15 | Tab 2: Stemming, Lemmatization & Minimum Edit Distance
+* **Action:** Click on **🌱 Stem / Lemma** tab. Showcase the discrepancy chips, styled comparison table, and the **Minimum Edit Distance Matrix**.
 * **Speaker:**
   > *"Next, we compare morphological reduction: **Stemming vs. Lemmatization**.*
   >
@@ -49,7 +53,9 @@
   >
   > *In contrast, the WordNet Lemmatizer uses vocabulary databases and grammar rules to return true dictionary base words: `study` and `fly`.*
   >
-  > *Our app automatically highlights discrepancies in pastel pink, showing students exactly where and why stemmers fail on irregular inflections like `mice` and `feet`."*
+  > *Our app automatically highlights discrepancies in pastel pink, showing students exactly where and why stemmers fail on irregular inflections like `mice` and `feet`.*
+  >
+  > *Below the table, our **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculates the dynamic programming alignment grid step-by-step between any two words, showing the exact insertion, deletion, and substitution costs!"*
 
 ---
 

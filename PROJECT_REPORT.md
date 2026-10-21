@@ -69,24 +69,24 @@ NLP_Project/
 ## 5. Detailed Module Descriptions
 
 ### Module 1: Tokenization (`modules/tokenization.py`)
-* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units.
-* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), and spaCy rule-based tokenizer.
-* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive N-Gram Phrase Inspector (Unigrams, Bigrams, Trigrams), indexed breakdown tables, and a bonus Devanagari (Marathi/Hindi) Unicode segmentation demo.
+* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units and linguistic distribution laws.
+* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), spaCy rule-based tokenizer, and stopword filtering.
+* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive Stopword Filter (highlighting or filtering non-content tokens with volume reduction %), an interactive **Zipf's Law Linguistic Distribution Plot** (empirical frequency vs. rank with log-log coordinates and ideal $1/r$ curve overlay), interactive N-Gram Phrase Inspector (Unigrams, Bigrams, Trigrams), bonus Devanagari (Marathi/Hindi) Unicode segmentation demo, and one-click CSV token table export.
 
 ### Module 2: Stemming vs. Lemmatization (`modules/stemming_lemma.py`)
-* **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction.
-* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), and NLTK WordNet Lemmatizer (noun & verb morphological base lookup).
-* **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), with visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`).
+* **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction and computes string edit distance.
+* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), NLTK WordNet Lemmatizer (noun & verb morphological base lookup), and Levenshtein Minimum Edit Distance dynamic programming.
+* **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`), an interactive **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculating $(M+1) \times (N+1)$ alignment cost grids via Plotly heatmaps, and one-click CSV comparison table export.
 
 ### Module 3: Part-of-Speech Tagging (`modules/pos_ner.py`)
 * **Purpose:** Assigns universal grammatical classes, fine-grained Penn Treebank tags, and syntactic dependencies.
 * **Algorithms:** spaCy transition-based dependency parser and tagger.
-* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), and detailed definitions via `spacy.explain()`.
+* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), detailed definitions via `spacy.explain()`, and one-click CSV grammatical breakdown export.
 
 ### Module 4: Named Entity Recognition (`modules/pos_ner.py`)
 * **Purpose:** Identifies and classifies real-world entities into predefined semantic classes.
 * **Algorithms:** spaCy pre-trained NER pipeline.
-* **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, extracted entity tables with character boundary offsets, and category breakdown chips.
+* **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, extracted entity tables with character boundary offsets, category breakdown chips, and one-click CSV entity export.
 
 ### Module 5: TF-IDF & Bag of Words (`modules/tfidf.py`)
 * **Purpose:** Visualizes multi-document vectorization, inverse term frequency weighting, and information retrieval.
@@ -112,6 +112,8 @@ NLP_Project/
   * Asserts Information Retrieval (IR) query vectorization and top-document cosine ranking accuracy.
   * Asserts inter-document similarity matrix diagonal symmetry ($S_{ii} = 1.0$).
   * Asserts nearest semantic neighbor ranking in 300D vector space.
+  * Asserts stopword identification and filtering against standard English stopword corpora.
+  * Asserts dynamic programming Levenshtein distance matrix accuracy and zero edit cost for identical strings.
 
 ---
 

@@ -6,7 +6,7 @@ import streamlit as st
 import nltk
 
 # Essential NLTK packages required across modules
-NLTK_PACKAGES = ["punkt", "punkt_tab", "wordnet", "omw-1.4"]
+NLTK_PACKAGES = ["punkt", "punkt_tab", "wordnet", "omw-1.4", "stopwords"]
 
 
 @st.cache_resource(show_spinner=False)
