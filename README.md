@@ -108,7 +108,7 @@ NLP_Project/
 3. **🏷️ POS Tagging:** Color-coded grammatical tags with human-readable explanations via `spacy.explain()`.
 4. **🔍 Named Entity Recognition (NER):** DisplaCy visualizer for PERSON, ORG, GPE, DATE, and more.
 5. **📊 TF-IDF & Bag of Words:** Matrix inspector and Plotly heatmap for multi-document corpora.
-6. **🌌 Word Embeddings:** Interactive 2D PCA projection of 300D spaCy vectors and live cosine similarity calculator.
+6. **🌌 Word Embeddings:** Interactive 2D PCA projection with semantic trajectory shift arrows, 3D vector space orbit, live cosine similarity comparator, and a **Parallelogram Law Vector Geometry visualizer** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$).
 7. **⚡ Global Example Presets:** One-click benchmark sentence loader across tabs.
 
 ---

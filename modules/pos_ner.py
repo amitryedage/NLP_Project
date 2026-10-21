@@ -181,13 +181,39 @@ def render_pos_tab():
         most_common_pos = max(pos_counts, key=pos_counts.get)
         st.metric("Most Frequent POS", f"{most_common_pos} ({pos_counts[most_common_pos]}x)")
 
-    # 8. Detailed Tabular Breakdown
+    # 8. Syntactic Dependency Parse Tree (DisplaCy)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🌳 Syntactic Dependency Parse Tree")
+    st.caption("Visualizes grammatical dependencies and relationships (Subject → Root Verb → Direct Object):")
+
+    dep_options = {
+        "compact": True,
+        "color": COLOR_TEXT,
+        "bg": COLOR_SECONDARY_BG,
+        "font": "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+        "distance": 110,
+    }
+    try:
+        dep_svg = displacy.render(doc, style="dep", options=dep_options, page=False)
+        st.markdown(
+            f"""
+            <div style="overflow-x: auto; background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; 
+                        border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                {dep_svg}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    except Exception as e:
+        st.info(f"Dependency tree visualizer ready for standard sentences.")
+
+    # 9. Detailed Tabular Breakdown
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Grammatical Breakdown Table")
     df_table = pd.DataFrame(token_records)[["Index", "Word", "Universal POS", "Fine Tag", "Grammatical Meaning", "Lemma"]]
     st.dataframe(df_table, use_container_width=True, hide_index=True)
 
-    # 9. Educational Insights Box
+    # 10. Educational Insights Box
     with st.expander("💡 Deep Dive: Contextual Ambiguity in POS Tagging"):
         st.markdown(
             """

@@ -135,8 +135,8 @@ def render_tokenization_tab():
                 "Is Punctuation": t.is_punct,
             })
 
-    # 5. Metrics Summary Cards
-    m1, m2, m3, m4 = st.columns(4)
+    # 5. Metrics Summary Cards (with Lexical Diversity / TTR)
+    m1, m2, m3, m4, m5 = st.columns(5)
     with m1:
         st.metric(label="Total Tokens", value=len(tokens))
     with m2:
@@ -148,6 +148,9 @@ def render_tokenization_tab():
     with m4:
         punct_count = sum(1 for t in tokens if not t.isalnum())
         st.metric(label="Punct / Special", value=punct_count)
+    with m5:
+        ttr = (unique_tokens / max(len(tokens), 1)) * 100
+        st.metric(label="Lexical Diversity", value=f"{ttr:.1f}%", help="Type-Token Ratio (TTR): measures vocabulary richness.")
 
     # 6. Visual Output: Color-Coded Chips
     st.subheader("🎨 Live Token Stream")
@@ -166,7 +169,40 @@ def render_tokenization_tab():
     chips_container = f'<div class="chip-container">{" ".join(chip_html_list)}</div>'
     st.markdown(chips_container, unsafe_allow_html=True)
 
-    # 7. Structured Table of Tokens
+    # 7. Interactive N-Gram Exploration
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🧩 N-Gram Phrase Inspector")
+    st.caption("N-grams are contiguous sequences of N items from the text. They capture local context and collocations:")
+
+    col_ngram_n, col_ngram_info = st.columns([2, 3])
+    with col_ngram_n:
+        ngram_choice = st.radio(
+            "Select N-Gram Order:",
+            ["Unigrams (N=1)", "Bigrams (N=2)", "Trigrams (N=3)"],
+            horizontal=True,
+            key="ngram_order_select"
+        )
+    
+    n_order = 1 if "1" in ngram_choice else (2 if "2" in ngram_choice else 3)
+    # Compute words-only tokens for meaningful n-grams
+    clean_words = [t for t in tokens if t.isalnum()]
+    
+    if len(clean_words) >= n_order:
+        from collections import Counter
+        ngram_tuples = list(nltk.ngrams(clean_words, n_order))
+        ngram_strings = [" ".join(ng) for ng in ngram_tuples]
+        ngram_counts = Counter(ngram_strings).most_common(12)
+
+        ngram_chips = []
+        for idx, (ng_str, cnt) in enumerate(ngram_counts):
+            color = PASTEL_COLORS[idx % len(PASTEL_COLORS)]
+            ngram_chips.append(chip(ng_str, color=color, subtitle=f"{cnt}x"))
+        
+        st.markdown(f'<div class="chip-container">{" ".join(ngram_chips)}</div>', unsafe_allow_html=True)
+    else:
+        st.info(f"Please enter at least {n_order} words to generate {ngram_choice.split()[0]}.")
+
+    # 8. Structured Table of Tokens
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Token Breakdown Table")
     df = pd.DataFrame(token_details)

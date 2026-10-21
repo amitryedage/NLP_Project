@@ -53,10 +53,12 @@
 
 ---
 
-### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging & DisplaCy NER
-* **Action:** Click on **🏷️ POS Tags**, then quickly switch to **🔍 NER**.
+### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging, Syntactic Dependency Tree & DisplaCy NER
+* **Action:** Click on **🏷️ POS Tags**, scroll to the **Syntactic Dependency Tree**, then switch to **🔍 NER**.
 * **Speaker:**
   > *"In **Tab 3**, we use spaCy's statistical tagger to classify every word into its grammatical role (Noun, Verb, Adjective, etc.) with a live Plotly frequency bar chart and human-readable Penn Treebank explanations.*
+  >
+  > *Scroll down to our live **Syntactic Dependency Parse Tree**, which renders curved grammatical arcs connecting Subject, Root Verb, and Direct Object.*
   >
   > *Moving to **Tab 4: Named Entity Recognition**, we integrate spaCy's DisplaCy visualizer styled with our light pastel palette. On our benchmark sentence:*
   > `'Elon Musk visited Mumbai on 5 May 2024 to announce Tesla's $2 billion investment...'`
@@ -64,16 +66,18 @@
 
 ---
 
-### 3:00 – 3:50 | Tabs 5 & 6: TF-IDF & 300D Word Vectors (PCA)
-* **Action:** Click on **📊 TF-IDF**, show the heatmap, then switch to **🌌 Embeddings** and show the 2D scatter plot.
+### 3:00 – 3:55 | Tabs 5 & 6: TF-IDF, 3D Orbit & Vector Arithmetic
+* **Action:** Click on **📊 TF-IDF**, show the heatmap, then switch to **🌌 Embeddings**. Point out the **Semantic Trajectory Arrows** in 2D PCA, toggle to **3D Interactive Orbit** and spin with mouse, then scroll down to the **Vector Arithmetic Solver** and the **Parallelogram Law Visualizer**.
 * **Speaker:**
   > *"In **Tab 5**, we show how text becomes numerical matrices. Our **TF-IDF Heatmap** visualizes word importance across documents. Notice how common words receive lower weights, while rare, discriminative words shine as top keywords.*
   >
-  > *Finally, in **Tab 6: Word Embeddings**, we extract 300-dimensional dense vectors from spaCy's `en_core_web_md` and reduce them to 2D using Principal Component Analysis.*
+  > *Finally, in **Tab 6: Word Embeddings**, we extract 300-dimensional dense vectors from spaCy's `en_core_web_md`.*
   >
-  > *Notice how conceptual clusters naturally emerge: royal terms (`king`, `queen`, `man`, `woman`) cluster together, fruits form another cluster, and vehicles form a third.*
+  > *In the 2D projection, our **Semantic Trajectory Arrows** visually link analogical pairs like `Man ➔ King` and `Woman ➔ Queen`. You can also toggle to our **3D Interactive Orbit** to freely rotate and zoom into semantic clusters.*
   >
-  > *Our pairwise cosine calculator proves that $\text{sim}(\text{king}, \text{queen}) \approx 0.72$ (High), whereas $\text{sim}(\text{king}, \text{apple}) \approx 0.12$ (Low)."*
+  > *Even more exciting is our **Semantic Vector Arithmetic Playground**: when we compute $\text{King} - \text{Man} + \text{Woman}$, the model mathematically solves for **Queen** at the top of the leaderboard with a 78% similarity match!*
+  >
+  > *Scroll down to our live **Parallelogram Law Visualizer**: it plots the 4 words and draws the two displacement vectors $\vec{\Delta}_1$ and $\vec{\Delta}_2$. The app measures an astonishing **94%+ directional parallelism**, geometrically proving that Word2Vec preserves semantic shifts in vector space!"*
 
 ---
 

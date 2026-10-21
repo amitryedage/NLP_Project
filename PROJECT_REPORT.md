@@ -71,7 +71,7 @@ NLP_Project/
 ### Module 1: Tokenization (`modules/tokenization.py`)
 * **Purpose:** Demonstrates splitting continuous text into discrete grammatical units.
 * **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), and spaCy rule-based tokenizer.
-* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, indexed breakdown tables, and a bonus Devanagari (Marathi/Hindi) Unicode segmentation demo.
+* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive N-Gram Phrase Inspector (Unigrams, Bigrams, Trigrams), indexed breakdown tables, and a bonus Devanagari (Marathi/Hindi) Unicode segmentation demo.
 
 ### Module 2: Stemming vs. Lemmatization (`modules/stemming_lemma.py`)
 * **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction.
@@ -79,9 +79,9 @@ NLP_Project/
 * **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), with visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`).
 
 ### Module 3: Part-of-Speech Tagging (`modules/pos_ner.py`)
-* **Purpose:** Assigns universal grammatical classes and fine-grained Penn Treebank tags.
+* **Purpose:** Assigns universal grammatical classes, fine-grained Penn Treebank tags, and syntactic dependencies.
 * **Algorithms:** spaCy transition-based dependency parser and tagger.
-* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, and detailed definitions via `spacy.explain()`.
+* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), and detailed definitions via `spacy.explain()`.
 
 ### Module 4: Named Entity Recognition (`modules/pos_ner.py`)
 * **Purpose:** Identifies and classifies real-world entities into predefined semantic classes.
@@ -95,8 +95,8 @@ NLP_Project/
 
 ### Module 6: Word Embeddings & Vector Space (`modules/embeddings.py`)
 * **Purpose:** Illustrates semantic distance and geometric vector arithmetic in continuous space.
-* **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D}$), and Cosine Similarity.
-* **Visuals:** Interactive 2D Plotly scatter plot with persistent word annotations, Out-of-Vocabulary (OOV) error banners, and a live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low).
+* **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D} / 3\text{D}$), and Cosine Similarity.
+* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), and an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows.
 
 ---
 
@@ -108,6 +108,7 @@ NLP_Project/
   * Asserts entity recognition on standard benchmarks (`Elon Musk` $\rightarrow$ `PERSON`, `Mumbai` $\rightarrow$ `GPE`).
   * Asserts TF-IDF matrix shape integrity and normalization ($\le 1.0$).
   * Asserts 300D vector dimensionality and cosine similarity hierarchy ($\text{sim}(\text{king}, \text{queen}) > \text{sim}(\text{king}, \text{apple})$).
+  * Asserts analogy parallelogram vector geometry, PCA projection linearity, and high directional parallelism ($> 75\%$).
 
 ---
 
