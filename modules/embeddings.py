@@ -362,6 +362,40 @@ def render_embeddings_tab():
                 unsafe_allow_html=True,
             )
 
+    # 6b. Full Cluster Pairwise Cosine Similarity Matrix
+    with st.expander("📊 Full Cluster Pairwise Cosine Similarity Matrix", expanded=False):
+        st.markdown(
+            f"<span style='color: {COLOR_MUTED}; font-size: 0.9rem;'>"
+            f"Computes pairwise cosine similarities across all {len(valid_words)} active cluster words. "
+            f"Notice how semantically related categories form bright, high-similarity blocks:"
+            f"</span>",
+            unsafe_allow_html=True,
+        )
+        vec_arr = np.array(vectors)
+        norms = np.linalg.norm(vec_arr, axis=1, keepdims=True)
+        sim_matrix = np.dot(vec_arr, vec_arr.T) / (norms * norms.T)
+
+        df_sim_cluster = pd.DataFrame(sim_matrix, index=[w.title() for w in valid_words], columns=[w.title() for w in valid_words])
+
+        fig_cluster_sim = px.imshow(
+            df_sim_cluster,
+            labels=dict(x="Word", y="Word", color="Cosine Similarity"),
+            x=[w.title() for w in valid_words],
+            y=[w.title() for w in valid_words],
+            color_continuous_scale="YlGnBu",
+            text_auto=".2f",
+            aspect="auto",
+            template="plotly_white",
+        )
+        fig_cluster_sim.update_layout(
+            title=f"Pairwise Semantic Similarity Heatmap ({len(valid_words)} Words)",
+            height=max(320, len(valid_words) * 32),
+            margin=dict(l=20, r=20, t=40, b=20),
+            plot_bgcolor=COLOR_BG,
+            paper_bgcolor=COLOR_BG,
+        )
+        st.plotly_chart(fig_cluster_sim, use_container_width=True)
+
     st.markdown("---")
 
     # --- Section C: Top-K Nearest Semantic Neighbors Explorer ---

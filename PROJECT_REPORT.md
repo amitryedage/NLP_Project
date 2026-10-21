@@ -69,13 +69,13 @@ NLP_Project/
 ## 5. Detailed Module Descriptions
 
 ### Module 1: Tokenization (`modules/tokenization.py`)
-* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units and linguistic distribution laws.
-* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), spaCy rule-based tokenizer, and stopword filtering.
-* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive Stopword Filter (highlighting or filtering non-content tokens with volume reduction %), an interactive **Zipf's Law Linguistic Distribution Plot** (empirical frequency vs. rank with log-log coordinates and ideal $1/r$ curve overlay), interactive N-Gram Phrase Inspector (Unigrams, Bigrams, Trigrams), bonus Devanagari (Marathi/Hindi) Unicode segmentation demo, and one-click CSV token table export.
+* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units, linguistic distribution laws, and statistical language modeling.
+* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), spaCy rule-based tokenizer, stopword filtering, Maximum Likelihood Estimation (MLE), Laplace (Add-1) smoothing, and Devanagari Akshara regex segmentation.
+* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive Stopword Filter (highlighting or filtering non-content tokens with volume reduction %), an interactive **Zipf's Law Linguistic Distribution Plot** (empirical frequency vs. rank with log-log coordinates and ideal $1/r$ curve overlay), an **Interactive N-Gram Language Model & Next-Word Predictor (Markov LM)** with MLE vs. Laplace Add-1 smoothing, next-word candidate probability bar charts, live Markov chain text generation, bonus **Devanagari (Marathi/Hindi) Akshara Syllable & Conjunct Segmentation**, and one-click CSV token table export.
 
 ### Module 2: Stemming vs. Lemmatization (`modules/stemming_lemma.py`)
 * **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction and computes string edit distance.
-* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), NLTK WordNet Lemmatizer (noun & verb morphological base lookup), and Levenshtein Minimum Edit Distance dynamic programming.
+* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), Lancaster Stemmer, NLTK WordNet Lemmatizer (noun & verb morphological base lookup), and Levenshtein Minimum Edit Distance dynamic programming.
 * **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`), an interactive **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculating $(M+1) \times (N+1)$ alignment cost grids via Plotly heatmaps, and one-click CSV comparison table export.
 
 ### Module 3: Part-of-Speech Tagging (`modules/pos_ner.py`)
@@ -89,14 +89,19 @@ NLP_Project/
 * **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, interactive **Entity Category Multiselect Filter**, extracted entity tables with character boundary offsets, category breakdown chips, an expandable **Entity Co-occurrence & Relationship Graph** (seeding Knowledge Graph relation extraction), and one-click CSV entity export.
 
 ### Module 5: TF-IDF & Bag of Words (`modules/tfidf.py`)
-* **Purpose:** Visualizes multi-document vectorization, inverse term frequency weighting, and information retrieval.
-* **Algorithms:** scikit-learn `CountVectorizer`, `TfidfVectorizer` (with optional stopword removal), and `cosine_similarity`.
-* **Visuals:** High-density Plotly Heatmap (`Blues` colorscale) mapping vocabulary words against documents, **Pairwise Inter-Document Similarity Heatmap** (`Teal` colorscale), interactive keyword selector, per-document horizontal bar charts, a live **Information Retrieval (Search Engine Simulator)** ranking corpus documents against arbitrary user queries via cosine similarity, and one-click CSV matrix export.
+* **Purpose:** Visualizes multi-document vectorization, inverse term frequency weighting, information retrieval, and graph-based summarization.
+* **Algorithms:** scikit-learn `CountVectorizer`, `TfidfVectorizer` (with unigram and bigram ranges), `cosine_similarity`, and TextRank (PageRank power iteration on sentence graphs).
+* **Visuals:** High-density Plotly Heatmap (`Blues` colorscale) mapping vocabulary words against documents, **N-Gram Feature Extraction Range Selector** (`(1, 1)`, `(1, 2)`, `(2, 2)`), **Pairwise Inter-Document Similarity Heatmap** (`Teal` colorscale), interactive keyword selector, per-document horizontal bar charts, a live **Information Retrieval (Search Engine Simulator)** ranking corpus documents against arbitrary user queries via cosine similarity, an **Extractive Text Summarization Engine (TextRank Algorithm)** scoring sentence centrality and synthesizing concise summaries with compression metrics, and one-click CSV matrix export.
 
 ### Module 6: Word Embeddings & Vector Space (`modules/embeddings.py`)
-* **Purpose:** Illustrates semantic distance, nearest neighbor discovery, and geometric vector arithmetic in continuous space.
+* **Purpose:** Illustrates semantic distance, nearest neighbor discovery, geometric vector arithmetic, and cluster cohesion in continuous space.
 * **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D} / 3\text{D}$), and Cosine Similarity.
-* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a **Top-$K$ Nearest Semantic Neighbors Explorer** with interactive similarity rankings and Viridis bar charts, a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows, and one-click 2D PCA coordinate CSV export.
+* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a **Full Cluster Pairwise Cosine Similarity Heatmap**, a **Top-$K$ Nearest Semantic Neighbors Explorer** with interactive similarity rankings and Viridis bar charts, a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows, and one-click 2D PCA coordinate CSV export.
+
+### Global Module: Corpus Profiler & Linguistic Readability (`app.py`)
+* **Purpose:** Real-time linguistic profiling and readability assessment for active corpus inputs.
+* **Algorithms:** Flesch Reading Ease formula, syllable counter, Type-Token Ratio (TTR), and Hapax Legomena frequency analysis.
+* **Visuals:** Top-level metrics container displaying Total Words, Total Sentences, Unique Vocabulary ($|V|$), Type-Token Ratio percentage, Hapax Legomena count, and Flesch Reading Ease score.
 
 ---
 
@@ -116,6 +121,11 @@ NLP_Project/
   * Asserts dynamic programming Levenshtein distance matrix accuracy and zero edit cost for identical strings.
   * Asserts POS sequence transition bigram calculations (`DET ➔ ADJ` and `NOUN ➔ VERB`).
   * Asserts entity co-occurrence pair generation for knowledge graph relation extraction.
+  * Asserts N-Gram range `(1, 2)` compound phrase extraction in TF-IDF.
+  * Asserts cluster pairwise cosine similarity matrix properties (identity diagonal and semantic group cohesion).
+  * Asserts Bigram Maximum Likelihood Estimation and Laplace Add-1 smoothing probability summation ($= 1.0$).
+  * Asserts TextRank PageRank eigenvector convergence and positive sentence centrality scores.
+  * Asserts Lexical Diversity calculations including Type-Token Ratio (TTR) and Hapax Legomena counting.
 
 ---
 

@@ -87,20 +87,39 @@ def render_tfidf_tab():
         )
 
     with col_options:
-        remove_stopwords = st.checkbox(
-            "Remove English Stopwords (e.g. 'and', 'are', 'of')",
-            value=False,
-            help="Stripping common grammatical stopwords prevents them from dominating word frequencies.",
+        ngram_choice = st.selectbox(
+            "N-Gram Feature Extraction Range:",
+            ["Unigrams (1, 1)", "Unigrams + Bigrams (1, 2)", "Bigrams Only (2, 2)"],
+            index=0,
+            help="Extract single words, compound phrases (e.g. 'natural language', 'artificial intelligence'), or both.",
+            key="tfidf_ngram_range_select"
         )
-        lowercase = st.checkbox("Convert to Lowercase", value=True)
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            remove_stopwords = st.checkbox(
+                "Remove English Stopwords",
+                value=False,
+                help="Stripping common grammatical stopwords prevents them from dominating word frequencies.",
+            )
+        with col_c2:
+            lowercase = st.checkbox("Convert to Lowercase", value=True)
 
     st.markdown("---")
+
+    # Parse N-gram tuple
+    if "1, 2" in ngram_choice:
+        ngram_range = (1, 2)
+    elif "2, 2" in ngram_choice:
+        ngram_range = (2, 2)
+    else:
+        ngram_range = (1, 1)
 
     # 4. Scikit-Learn Vectorization
     stop_words_arg = "english" if remove_stopwords else None
 
     if "TF-IDF" in vectorizer_mode:
         vectorizer = TfidfVectorizer(
+            ngram_range=ngram_range,
             stop_words=stop_words_arg,
             lowercase=lowercase,
             smooth_idf=True,
@@ -110,6 +129,7 @@ def render_tfidf_tab():
         decimals = 3
     else:
         vectorizer = CountVectorizer(
+            ngram_range=ngram_range,
             stop_words=stop_words_arg,
             lowercase=lowercase,
         )
@@ -387,8 +407,132 @@ def render_tfidf_tab():
                 unsafe_allow_html=True,
             )
 
-    # 9. Educational Takeaway Box
-    with st.expander("💡 Deep Dive: Mathematical Formulation of TF-IDF"):
+    # 9. Extractive Text Summarization Engine (TextRank / Sentence Centrality Graph)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("📑 Extractive Text Summarization Engine (TextRank Algorithm)")
+    st.markdown(
+        f"""
+        <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 0.95rem; color: {COLOR_TEXT}; margin-bottom: 3px;">
+                How does Graph-Based Extractive Summarization Work?
+            </div>
+            <div style="color: {COLOR_MUTED}; font-size: 0.88rem; line-height: 1.4;">
+                <b>TextRank</b> (Mihalcea & Tarau, 2004) models sentences as vertices in a graph where edge weights 
+                are pairwise TF-IDF cosine similarities. Applying Google's <b>PageRank</b> random-walk algorithm calculates 
+                the recursive centrality of each sentence: a sentence is crucial if it is strongly connected to other informative sentences.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if len(doc_lines) >= 3:
+        # Power Iteration PageRank on TF-IDF cosine graph
+        tfidf_tr = TfidfVectorizer(stop_words="english" if remove_stopwords else None)
+        tfidf_tr_mat = tfidf_tr.fit_transform(doc_lines)
+        sim_mat_tr = cosine_similarity(tfidf_tr_mat, tfidf_tr_mat)
+        np.fill_diagonal(sim_mat_tr, 0.0)  # remove self-loops
+
+        row_sums = sim_mat_tr.sum(axis=1)
+        norm_mat = np.zeros_like(sim_mat_tr)
+        n_docs = len(doc_lines)
+        for i in range(n_docs):
+            if row_sums[i] > 0:
+                norm_mat[i] = sim_mat_tr[i] / row_sums[i]
+            else:
+                norm_mat[i] = 1.0 / n_docs
+
+        # Power iteration
+        damping = 0.85
+        tr_scores = np.ones(n_docs) / n_docs
+        for _ in range(40):
+            next_scores = (1 - damping) / n_docs + damping * np.dot(norm_mat.T, tr_scores)
+            if np.linalg.norm(next_scores - tr_scores) < 1e-5:
+                break
+            tr_scores = next_scores
+
+        df_tr = pd.DataFrame({
+            "Doc ID": [f"Doc {i+1}" for i in range(n_docs)],
+            "Original Index": list(range(n_docs)),
+            "TextRank Score": tr_scores,
+            "Document Text": doc_lines
+        }).sort_values(by="TextRank Score", ascending=False).reset_index(drop=True)
+
+        c_tr_opt, c_tr_chart = st.columns([1, 2])
+        with c_tr_opt:
+            max_k = min(len(doc_lines) - 1, 4)
+            top_k_summary = st.slider(
+                "Summary Target Sentences (Top-K):",
+                min_value=1,
+                max_value=max_k,
+                value=min(2, max_k),
+                key="tr_top_k_slider"
+            )
+            st.caption(f"Selecting the **top {top_k_summary}** highest-centrality sentences from the {n_docs}-document corpus.")
+
+        with c_tr_chart:
+            fig_tr = px.bar(
+                df_tr,
+                x="TextRank Score",
+                y="Doc ID",
+                orientation="h",
+                text=df_tr["TextRank Score"].apply(lambda s: f"{s:.4f}"),
+                title="Sentence TextRank Graph Centrality Distribution",
+                color="TextRank Score",
+                color_continuous_scale="Tealgrn"
+            )
+            fig_tr.update_layout(
+                height=240,
+                margin=dict(l=20, r=20, t=35, b=20),
+                yaxis=dict(autorange="reversed"),
+                plot_bgcolor=COLOR_BG,
+                paper_bgcolor=COLOR_BG
+            )
+            st.plotly_chart(fig_tr, use_container_width=True)
+
+        # Build chronological extractive summary
+        top_indices = sorted(df_tr.head(top_k_summary)["Original Index"].tolist())
+        summary_sentences = [doc_lines[idx] for idx in top_indices]
+        summary_text = " ".join(summary_sentences)
+
+        # Word compression stats
+        orig_words = sum(len(d.split()) for d in doc_lines)
+        sum_words = sum(len(s.split()) for s in summary_sentences)
+        compression_ratio = ((orig_words - sum_words) / orig_words) * 100 if orig_words > 0 else 0
+
+        st.markdown("<b>📰 Extracted Summary (Chronological Synthesis):</b>", unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-weight: 700; color: #065F46; font-size: 0.9rem; text-transform: uppercase;">
+                        Key Extractive Summary
+                    </span>
+                    <span style="background-color: #D1FAE5; color: #047857; font-weight: 600; font-size: 0.8rem; padding: 3px 10px; border-radius: 12px;">
+                        {compression_ratio:.1f}% Compression ({orig_words} ➔ {sum_words} words)
+                    </span>
+                </div>
+                <div style="color: {COLOR_TEXT}; font-size: 0.98rem; line-height: 1.6; font-style: italic;">
+                    "{summary_text}"
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Download summary scores
+        st.download_button(
+            label="📥 Download TextRank Centrality Scores (CSV)",
+            data=df_tr.to_csv(index=False).encode("utf-8"),
+            file_name="textrank_centrality_scores.csv",
+            mime="text/csv",
+            key="btn_download_textrank"
+        )
+    else:
+        st.info("Enter at least 3 documents to enable TextRank Extractive Summarization graph modeling.")
+
+    # 10. Educational Takeaway Box
+    with st.expander("💡 Deep Dive: Mathematical Formulation of TF-IDF & TextRank"):
         st.markdown(
             """
             * **Term Frequency ($TF$):**
@@ -396,8 +540,8 @@ def render_tfidf_tab():
             * **Inverse Document Frequency ($IDF$):**
               $$\\text{IDF}(t) = \\ln\\left(\\frac{1 + N}{1 + \\text{DF}(t)}\\right) + 1$$
               *(where $N$ is total documents and $\\text{DF}(t)$ is number of documents containing $t$)*
-            * **The Intuition:**
-              If a word like `"processing"` appears only in Doc 1 and Doc 3, it has high discriminative power. 
-              If every single document contains `"language"`, its IDF drops, preventing it from distinguishing between documents.
+            * **TextRank Graph Centrality Formula:**
+              $$S(V_i) = (1 - d) + d \\sum_{V_j \\in \\text{In}(V_i)} \\frac{w_{ji}}{\\sum_{V_k \\in \\text{Out}(V_j)} w_{jk}} S(V_j)$$
+              *(where $d=0.85$ is the random walk damping factor and $w_{ji}$ is cosine similarity between sentences $V_j$ and $V_i$)*
             """
         )

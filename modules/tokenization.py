@@ -291,7 +291,179 @@ def render_tokenization_tab():
     else:
         st.info("Enter at least 4 words to generate Zipf's Law rank distribution.")
 
-    # 8. Structured Table of Tokens
+    # 8. Interactive N-Gram Language Model & Next-Word Markov Predictor
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🔮 N-Gram Language Model & Next-Word Predictor (Markov LM)")
+    st.markdown(
+        f"""
+        <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 0.95rem; color: {COLOR_TEXT}; margin-bottom: 3px;">
+                How do Statistical Language Models Predict the Next Word?
+            </div>
+            <div style="color: {COLOR_MUTED}; font-size: 0.88rem; line-height: 1.4;">
+                Before Neural Transformers (GPT), NLP relied on <b>N-gram Markov Language Models</b>. 
+                Using the <i>Markov Assumption</i>, the probability of the next word \(w_t\) depends only on the preceding \(N-1\) words:
+                $$P(w_t \mid w_{t-1}) = \\frac{{C(w_{t-1}, w_t)}}{{C(w_{t-1})}}$$
+                Explore empirical transition probabilities and test next-word autocompletion directly on your input text!
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Clean words for language modeling (lowercase alphanumeric words)
+    import re
+    lm_words = [w.lower() for w in re.findall(r'\b[a-zA-Z0-9_\'-]+\b', user_text)]
+    vocab_set = sorted(list(set(lm_words)))
+
+    if len(lm_words) >= 4:
+        c_lm1, c_lm2, c_lm3 = st.columns([1, 1, 1])
+        with c_lm1:
+            ngram_order = st.radio("Model Order:", ["Bigram (N = 2)", "Trigram (N = 3)"], index=0, horizontal=True)
+        with c_lm2:
+            smoothing = st.radio("Probability Estimation:", ["MLE (Maximum Likelihood)", "Laplace (Add-1 Smoothing)"], index=0)
+        with c_lm3:
+            st.metric("Model Vocabulary Size (|V|)", f"{len(vocab_set)} unique words")
+
+        # Build N-Gram frequencies
+        from collections import defaultdict, Counter
+        if "Bigram" in ngram_order:
+            bigram_counts = defaultdict(Counter)
+            unigram_counts = Counter(lm_words)
+            for w1, w2 in zip(lm_words[:-1], lm_words[1:]):
+                bigram_counts[w1][w2] += 1
+
+            # Word prompt selector
+            available_contexts = [w for w in vocab_set if w in bigram_counts and len(bigram_counts[w]) > 0]
+            if not available_contexts:
+                available_contexts = vocab_set
+
+            sel_col1, sel_col2 = st.columns([1, 2])
+            with sel_col1:
+                selected_prompt = st.selectbox("Select Prompt Word (History):", available_contexts, index=0)
+            
+            # Compute probabilities for selected prompt
+            candidates = bigram_counts[selected_prompt]
+            c_prev = unigram_counts[selected_prompt]
+            v_size = len(vocab_set)
+
+            prob_rows = []
+            if smoothing.startswith("MLE"):
+                total_c = sum(candidates.values())
+                for cand, count in candidates.items():
+                    p = count / total_c if total_c > 0 else 0.0
+                    prob_rows.append({"Next Word": cand, "Count C(w1, w2)": count, "Probability P(w|prompt)": p})
+            else:
+                # Laplace Add-1
+                # Show top observed candidates + smoothed unseen sample
+                denom = c_prev + v_size
+                for cand in vocab_set:
+                    c_pair = candidates.get(cand, 0)
+                    p = (c_pair + 1) / denom
+                    if c_pair > 0:
+                        prob_rows.append({"Next Word": cand, "Count C(w1, w2)": c_pair, "Probability P(w|prompt)": p})
+
+            df_lm = pd.DataFrame(prob_rows)
+            if not df_lm.empty:
+                df_lm = df_lm.sort_values(by="Probability P(w|prompt)", ascending=False).reset_index(drop=True)
+                
+                with sel_col2:
+                    st.markdown(f"**Top Candidates following:** `{selected_prompt}`")
+                    top_candidate = df_lm.iloc[0]["Next Word"]
+                    top_prob = df_lm.iloc[0]["Probability P(w|prompt)"]
+                    st.info(f"Most likely next word: **'{top_candidate}'** (P = **{top_prob:.3f}** or **{top_prob*100:.1f}%**)")
+
+                # Horizontal bar chart of next word candidates
+                top_plot_df = df_lm.head(8)
+                fig_lm = px.bar(
+                    top_plot_df,
+                    x="Probability P(w|prompt)",
+                    y="Next Word",
+                    orientation="h",
+                    text=top_plot_df["Probability P(w|prompt)"].apply(lambda p: f"{p:.3f}"),
+                    title=f"Next Word Conditional Probability Distribution: P( w | '{selected_prompt}' )",
+                    color="Probability P(w|prompt)",
+                    color_continuous_scale="Purples",
+                )
+                fig_lm.update_layout(
+                    height=280,
+                    margin=dict(l=20, r=20, t=40, b=20),
+                    yaxis=dict(autorange="reversed"),
+                    plot_bgcolor=COLOR_BG,
+                    paper_bgcolor=COLOR_BG,
+                )
+                st.plotly_chart(fig_lm, use_container_width=True)
+
+                # Interactive Markov Text Generator
+                st.markdown("<b>🎲 Live Markov Next-Word Text Generator:</b>", unsafe_allow_html=True)
+                gen_col1, gen_col2 = st.columns([1, 2])
+                with gen_col1:
+                    gen_steps = st.slider("Words to Generate:", min_value=2, max_value=8, value=4, key="lm_gen_slider")
+                    gen_mode = st.radio("Sampling Strategy:", ["Greedy (Highest Probability)", "Stochastic (Weighted Probability)"], index=0)
+                    btn_generate = st.button("▶️ Generate Continuation", key="btn_run_markov_gen")
+
+                with gen_col2:
+                    if btn_generate:
+                        curr_word = selected_prompt
+                        generated_seq = [curr_word]
+                        for _ in range(gen_steps):
+                            next_candidates = bigram_counts[curr_word]
+                            if not next_candidates:
+                                break
+                            words_list = list(next_candidates.keys())
+                            counts_list = list(next_candidates.values())
+                            probs_list = np.array(counts_list) / sum(counts_list)
+                            
+                            if "Greedy" in gen_mode:
+                                next_w = words_list[int(np.argmax(probs_list))]
+                            else:
+                                next_w = np.random.choice(words_list, p=probs_list)
+                            generated_seq.append(next_w)
+                            curr_word = next_w
+
+                        gen_text = " ".join(generated_seq)
+                        st.markdown(
+                            f"""
+                            <div style="background-color: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 12px 16px; margin-top: 8px;">
+                                <div style="font-weight: 700; color: {COLOR_PRIMARY}; font-size: 0.85rem; text-transform: uppercase;">Generated Markov Chain:</div>
+                                <div style="font-size: 1.05rem; color: {COLOR_TEXT}; margin-top: 4px; font-weight: 500;">
+                                    "{gen_text}..."
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.caption("Click 'Generate Continuation' to produce an autonomous sequence based on empirical text probabilities.")
+            else:
+                st.info(f"No observed transitions following '{selected_prompt}' in the input corpus.")
+        else:
+            # Trigram (N=3)
+            trigram_counts = defaultdict(Counter)
+            bigram_prefix_counts = Counter()
+            for w1, w2, w3 in zip(lm_words[:-2], lm_words[1:-1], lm_words[2:]):
+                trigram_counts[(w1, w2)][w3] += 1
+                bigram_prefix_counts[(w1, w2)] += 1
+
+            if trigram_counts:
+                prefixes = [f"{w1} {w2}" for (w1, w2) in trigram_counts.keys()]
+                sel_prefix = st.selectbox("Select Trigram Prefix (w1, w2):", prefixes)
+                p1, p2 = sel_prefix.split()
+                tri_cands = trigram_counts[(p1, p2)]
+                total_tri = sum(tri_cands.values())
+
+                tri_rows = [
+                    {"Next Word (w3)": w3, "Count C(w1, w2, w3)": c, "Probability P(w3|w1, w2)": c / total_tri}
+                    for w3, c in tri_cands.items()
+                ]
+                df_tri = pd.DataFrame(tri_rows).sort_values(by="Probability P(w3|w1, w2)", ascending=False)
+                st.dataframe(df_tri, use_container_width=True, hide_index=True)
+            else:
+                st.info("Input text needs at least 3 consecutive words to form trigrams.")
+    else:
+        st.info("Enter at least 4 words in the text area above to explore N-gram Language Modeling.")
+
+    # 9. Structured Table of Tokens
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Token Breakdown Table")
     df = pd.DataFrame(token_details)
@@ -306,7 +478,7 @@ def render_tokenization_tab():
         key="btn_download_token_table"
     )
 
-    # 8. Educational Takeaway / Comparison Card
+    # 10. Educational Takeaway / Comparison Card
     with st.expander("💡 Deep Dive: How Different Tokenizers Treat Contractions & Symbols"):
         st.markdown(
             """
@@ -317,8 +489,8 @@ def render_tokenization_tab():
             """
         )
 
-    # 9. Optional Bonus: Marathi / Indic Script Tokenization (Task 6 Item 7)
-    with st.expander("🇮🇳 Optional Bonus: Marathi / Hindi (Devanagari) Tokenization Demo"):
+    # 11. Optional Bonus: Marathi / Indic Script Tokenization & Akshara Morphology (Task 6 Item 7)
+    with st.expander("🇮🇳 Optional Bonus: Marathi / Hindi (Devanagari) Tokenization & Akshara Segmentation"):
         st.markdown(
             "Explore how NLP handles non-Latin scripts like **Marathi** and **Hindi** where compound characters (जोडाक्षरे), "
             "vowel matras (मात्रा), and danda punctuation (`।`) require Unicode-aware segmentation:"
@@ -327,11 +499,47 @@ def render_tokenization_tab():
         indic_text = st.text_input("Enter Marathi / Hindi text:", value=default_marathi, key="indic_token_input")
         if indic_text.strip():
             import re
-            # Unicode-aware word and punctuation regex for Devanagari
+            # 1. Word tokens
             indic_tokens = re.findall(r'[\u0900-\u097F]+|[a-zA-Z0-9]+|[^\s\w]', indic_text, re.UNICODE)
             indic_chips = []
             for idx, itok in enumerate(indic_tokens):
                 color = PASTEL_COLORS[idx % len(PASTEL_COLORS)]
                 indic_chips.append(chip(itok, color=color, subtitle=f"#{idx+1}"))
+            st.markdown("**1. Word-Level Tokens:**")
             st.markdown(f'<div class="chip-container">{" ".join(indic_chips)}</div>', unsafe_allow_html=True)
-            st.caption(f"Total Devanagari tokens extracted: **{len(indic_tokens)}**")
+
+            # 2. Akshara (Orthographic Syllable) Segmentation
+            # Devanagari Akshara: independent vowel OR (consonant + virama)* + consonant + [matra] + [modifier]
+            akshara_regex = re.compile(
+                r'(?:[\u0904-\u0914\u0960\u0961]|(?:[\u0915-\u0939\u0958-\u095F]\u094D)*[\u0915-\u0939\u0958-\u095F][\u093E-\u094C\u094E\u0955-\u0957\u0962\u0963]?)(?:[\u0901-\u0903\u093C])?'
+            )
+            dev_words = [w for w in indic_tokens if re.match(r'[\u0900-\u097F]', w)]
+            all_aksharas = []
+            conjunct_count = 0
+            matra_count = 0
+
+            for dw in dev_words:
+                found = akshara_regex.findall(dw)
+                all_aksharas.extend(found)
+                # Count conjuncts (virama \u094D)
+                conjunct_count += dw.count('\u094D')
+                # Count matras
+                matra_count += len(re.findall(r'[\u093E-\u094C\u094E\u0955-\u0957\u0962\u0963]', dw))
+
+            st.markdown("<br><b>2. Akshara (अक्षर / Syllable) Segmentation:</b>", unsafe_allow_html=True)
+            akshara_chips = [
+                chip(ak, color=PASTEL_COLORS[i % len(PASTEL_COLORS)], subtitle="Akshara")
+                for i, ak in enumerate(all_aksharas[:24])
+            ]
+            st.markdown(f'<div class="chip-container">{" ".join(akshara_chips)}</div>', unsafe_allow_html=True)
+
+            c_ind1, c_ind2, c_ind3, c_ind4 = st.columns(4)
+            with c_ind1:
+                st.metric("Total Words", len(indic_tokens))
+            with c_ind2:
+                st.metric("Total Aksharas (अक्षरे)", len(all_aksharas))
+            with c_ind3:
+                st.metric("Vowel Matras (मात्रा)", matra_count)
+            with c_ind4:
+                st.metric("Virama / Conjuncts (जोडाक्षरे)", conjunct_count)
+

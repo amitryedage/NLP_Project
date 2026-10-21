@@ -25,12 +25,14 @@
   >
   > *Most NLP concepts are taught through dry textbook definitions or static console printouts. Beginners struggle to visualize what happens to words inside an NLP pipeline.*
   >
-  > *We built a unified, light-themed Streamlit application powered by real NLP libraries—spaCy, NLTK, and scikit-learn. Nothing here is pre-baked or static; every transformation runs live on user input."*
+  > *We built a unified, light-themed Streamlit application powered by real NLP libraries—spaCy, NLTK, and scikit-learn. Nothing here is pre-baked or static; every transformation runs live on user input.*
+  >
+  > *Right at the top, notice our **Corpus Profiler & Linguistic Readability Strip**: it computes total word and sentence counts, unique vocabulary size $|V|$, Type-Token Ratio (TTR) for lexical diversity, Hapax Legomena for vocabulary novelty, and the Flesch Reading Ease score live on our input text."*
 
 ---
 
-### 0:45 – 1:30 | Tab 1: Tokenization, Stopwords & Zipf's Law
-* **Action:** Click on the **✂️ Tokenization** tab. Toggle **"Highlight English Stopwords"**, scroll down to the **Zipf's Law Distribution Plot**, and point out the **Download CSV** button.
+### 0:45 – 1:30 | Tab 1: Tokenization, Stopwords, Zipf's Law & N-Gram Markov LM
+* **Action:** Click on the **✂️ Tokenization** tab. Toggle **"Highlight English Stopwords"**, scroll down to the **Zipf's Law Distribution Plot**, showcase the **N-Gram Language Model** (pick a prompt word and click "Generate Continuation"), expand the **Devanagari Akshara Segmentation** demo, and point out the **Download CSV** button.
 * **Speaker:**
   > *"First is **Tokenization**, the foundational step where continuous text is segmented into discrete computational units.*
   >
@@ -38,9 +40,11 @@
   >
   > *With our **Stopword Filter**, we can instantly isolate non-content grammatical filler words (`the`, `is`, `in`) with real-time volume reduction percentages.*
   >
-  > *Scroll down to our **Zipf's Law Linguistic Distribution Plot**: it plots empirical word frequency against rank on log-log coordinates, visually demonstrating the principle that word frequency is inversely proportional to rank.*
+  > *Scroll down to our **Zipf's Law Linguistic Distribution Plot**: it plots empirical word frequency against rank on log-log coordinates, visually demonstrating that word frequency is inversely proportional to rank.*
   >
-  > *(Bonus) We also included a Unicode-aware Devanagari tokenization demonstration for Marathi and Hindi scripts, and one-click CSV export."*
+  > *Directly below, look at our **N-Gram Markov Language Model & Next-Word Predictor**: it calculates empirical transition probabilities $P(w_t \mid w_{t-1})$ with an optional Laplace (Add-1) smoothing toggle. When we select a prompt word like `'natural'`, it ranks candidate continuations like `'language'`, and clicking **'Generate Continuation'** lets us watch the Markov chain autonomously construct phrases token by token!*
+  >
+  > *(Bonus) We also included a Unicode-aware Devanagari Akshara and conjunct segmentation demo for Marathi and Hindi scripts, and one-click CSV export."*
 
 ---
 
@@ -76,16 +80,20 @@
 
 ---
 
-### 3:00 – 3:55 | Tabs 5 & 6: TF-IDF, 3D Orbit & Vector Arithmetic
-* **Action:** Click on **📊 TF-IDF**, show the heatmap and expand the **Pairwise Document-to-Document Similarity Heatmap**, then test the **Search Engine Simulator** with the query `"artificial intelligence"`. Next, switch to **🌌 Embeddings**: show the **Top-K Nearest Neighbors Explorer** for `"hospital"`, point out the **Semantic Trajectory Arrows**, toggle to **3D Interactive Orbit**, and showcase the **Parallelogram Law Visualizer**.
+### 3:00 – 3:55 | Tabs 5 & 6: TF-IDF, TextRank Summarizer & Vector Geometry
+* **Action:** Click on **📊 TF-IDF**, show the N-gram feature range selector `(1, 2)` for compound phrases, the **Inter-Document Similarity Heatmap**, run a live query in the **Search Engine Simulator**, and scroll to the **TextRank Extractive Summarizer**. Next, switch to **🌌 Embeddings**: show the **Top-K Nearest Neighbors Explorer**, the **Cluster Cosine Heatmap**, toggle to **3D Orbit**, and showcase the **Parallelogram Law Visualizer**.
 * **Speaker:**
-  > *"In **Tab 5**, we show how computers convert text into numerical weights. Our **TF-IDF Heatmap** visualizes word importance across documents, and our **Inter-Document Similarity Heatmap** reveals semantic overlaps between documents.*
+  > *"In **Tab 5**, we show how computers convert text into numerical weights. Our **N-Gram Range Selector** allows extracting compound terms like `'natural language'` and `'artificial intelligence'` alongside unigrams.*
   >
-  > *To answer why TF-IDF was invented, look at our live **Search Engine / Information Retrieval Simulator**: when we query `'artificial intelligence'`, the engine vectorizes our query and calculates cosine similarity across the entire corpus in real time, immediately ranking Doc 3 and Doc 4 at the top with match percentages!*
+  > *To answer why TF-IDF was invented, look at our live **Search Engine / Information Retrieval Simulator**: when we query `'artificial intelligence'`, the engine vectorizes our query and calculates cosine similarity across the entire corpus in real time, immediately ranking relevant documents with match percentages!*
+  >
+  > *Directly below, look at our **Extractive Text Summarization Engine (TextRank)**: it applies Google's PageRank algorithm over an inter-sentence cosine similarity graph, scoring the recursive centrality of each sentence to synthesize a concise, high-information summary with quantifiable compression metrics.*
   >
   > *Finally, in **Tab 6: Word Embeddings**, we extract 300-dimensional dense vectors from spaCy's `en_core_web_md`.*
   >
   > *With our **Top-K Nearest Neighbors Explorer**, users can search any word—like `'hospital'`—and immediately see its closest semantic neighbors like `'clinic'` and `'doctor'` ranked with similarity bars.*
+  >
+  > *Our **Cluster Cosine Similarity Heatmap** proves that semantic categories (Royalty, Fruits, Vehicles) form distinct high-density blocks in vector space.*
   >
   > *In the 2D projection, our **Semantic Trajectory Arrows** visually link analogical pairs like `Man ➔ King` and `Woman ➔ Queen`. You can also toggle to our **3D Interactive Orbit** to freely rotate and zoom into semantic clusters.*
   >

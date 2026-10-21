@@ -91,6 +91,78 @@ with st.expander("⚡ Try Quick Preset Sentences (Click to load across tabs)", e
             del st.session_state["shared_input"]
             st.rerun()
 
+# --- Live Linguistic Readability & Text Statistics Strip ---
+active_sample = st.session_state.get("shared_input", SAMPLE_SENTENCES["🌐 NLP Intro"])
+
+def compute_readability(text: str):
+    import re
+    from collections import Counter
+    words = [w for w in re.findall(r'\b\w+\b', text) if any(c.isalpha() for c in w)]
+    w_count = len(words)
+    s_count = max(1, len([s for s in re.split(r'[.!?]+', text.strip()) if s.strip()]))
+    c_count = sum(len(w) for w in words)
+    words_lower = [w.lower() for w in words]
+    vocab_size = len(set(words_lower))
+    word_freqs = Counter(words_lower)
+    hapax_count = sum(1 for w, c in word_freqs.items() if c == 1)
+    ttr = (vocab_size / w_count * 100) if w_count > 0 else 0.0
+
+    def count_syllables(w):
+        w = w.lower()
+        if len(w) <= 3:
+            return 1
+        w = re.sub(r'(?:[^laeiouy]|ed|es|e)$', '', w)
+        w = re.sub(r'^y', '', w)
+        matches = re.findall(r'[aeiouy]{1,2}', w)
+        return max(1, len(matches))
+
+    syl_count = sum(count_syllables(w) for w in words)
+
+    if w_count > 0:
+        asl = w_count / s_count
+        asw = syl_count / w_count
+        flesch = 206.835 - (1.015 * asl) - (84.6 * asw)
+        flesch = max(0.0, min(100.0, flesch))
+    else:
+        flesch = 70.0
+
+    return {
+        "words": w_count,
+        "sentences": s_count,
+        "chars": c_count,
+        "vocab": vocab_size,
+        "ttr": ttr,
+        "hapax": hapax_count,
+        "flesch": flesch,
+    }
+
+read_stats = compute_readability(active_sample)
+
+with st.container():
+    c_st1, c_st2, c_st3, c_st4, c_st5 = st.columns([1, 1, 1, 1, 1.2])
+    with c_st1:
+        st.metric("Words & Sentences", f"{read_stats['words']}w · {read_stats['sentences']}s")
+    with c_st2:
+        st.metric("Unique Vocab (|V|)", f"{read_stats['vocab']} terms")
+    with c_st3:
+        st.metric(
+            "Type-Token Ratio",
+            f"{read_stats['ttr']:.1f}%",
+            help="TTR = (|V| / N) * 100. Measures lexical diversity and repetition in text."
+        )
+    with c_st4:
+        st.metric(
+            "Hapax Legomena",
+            f"{read_stats['hapax']} words",
+            help="Terms occurring exactly once in the input text, measuring linguistic novelty."
+        )
+    with c_st5:
+        st.metric(
+            "Flesch Reading Ease",
+            f"{read_stats['flesch']:.1f}/100",
+            help="Higher scores (60-100) indicate accessible English; lower scores indicate dense scholarly syntax."
+        )
+
 st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
 
 # --- Sidebar Controls & Documentation ---
