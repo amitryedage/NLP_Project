@@ -22,8 +22,11 @@ dist/
 build/
 *.egg-info/
 
-# Tests
+# Tests and test cases
 tests/
+test/
+*test*.py
+*_test.py
 
 # PRD, Demo Script, and Project Reports
 PRD_NLP_Visual_Lab.md

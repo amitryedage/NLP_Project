@@ -89,14 +89,14 @@ NLP_Project/
 * **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, extracted entity tables with character boundary offsets, and category breakdown chips.
 
 ### Module 5: TF-IDF & Bag of Words (`modules/tfidf.py`)
-* **Purpose:** Visualizes multi-document vectorization and inverse term frequency weighting.
-* **Algorithms:** scikit-learn `CountVectorizer` and `TfidfVectorizer` (with optional stopword removal).
-* **Visuals:** High-density Plotly Heatmap (`Blues` colorscale) mapping vocabulary words against documents, interactive keyword selector, and per-document horizontal bar charts.
+* **Purpose:** Visualizes multi-document vectorization, inverse term frequency weighting, and information retrieval.
+* **Algorithms:** scikit-learn `CountVectorizer`, `TfidfVectorizer` (with optional stopword removal), and `cosine_similarity`.
+* **Visuals:** High-density Plotly Heatmap (`Blues` colorscale) mapping vocabulary words against documents, **Pairwise Inter-Document Similarity Heatmap** (`Teal` colorscale), interactive keyword selector, per-document horizontal bar charts, a live **Information Retrieval (Search Engine Simulator)** ranking corpus documents against arbitrary user queries via cosine similarity, and one-click CSV matrix export.
 
 ### Module 6: Word Embeddings & Vector Space (`modules/embeddings.py`)
-* **Purpose:** Illustrates semantic distance and geometric vector arithmetic in continuous space.
+* **Purpose:** Illustrates semantic distance, nearest neighbor discovery, and geometric vector arithmetic in continuous space.
 * **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D} / 3\text{D}$), and Cosine Similarity.
-* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), and an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows.
+* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a **Top-$K$ Nearest Semantic Neighbors Explorer** with interactive similarity rankings and Viridis bar charts, a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows, and one-click 2D PCA coordinate CSV export.
 
 ---
 
@@ -109,6 +109,9 @@ NLP_Project/
   * Asserts TF-IDF matrix shape integrity and normalization ($\le 1.0$).
   * Asserts 300D vector dimensionality and cosine similarity hierarchy ($\text{sim}(\text{king}, \text{queen}) > \text{sim}(\text{king}, \text{apple})$).
   * Asserts analogy parallelogram vector geometry, PCA projection linearity, and high directional parallelism ($> 75\%$).
+  * Asserts Information Retrieval (IR) query vectorization and top-document cosine ranking accuracy.
+  * Asserts inter-document similarity matrix diagonal symmetry ($S_{ii} = 1.0$).
+  * Asserts nearest semantic neighbor ranking in 300D vector space.
 
 ---
 

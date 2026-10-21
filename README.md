@@ -107,8 +107,8 @@ NLP_Project/
 2. **🌱 Stemming vs. Lemmatization:** Side-by-side comparison of Porter, Snowball, and WordNet with highlighting of inflectional differences.
 3. **🏷️ POS Tagging:** Color-coded grammatical tags with human-readable explanations via `spacy.explain()`.
 4. **🔍 Named Entity Recognition (NER):** DisplaCy visualizer for PERSON, ORG, GPE, DATE, and more.
-5. **📊 TF-IDF & Bag of Words:** Matrix inspector and Plotly heatmap for multi-document corpora.
-6. **🌌 Word Embeddings:** Interactive 2D PCA projection with semantic trajectory shift arrows, 3D vector space orbit, live cosine similarity comparator, and a **Parallelogram Law Vector Geometry visualizer** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$).
+5. **📊 TF-IDF & Bag of Words:** Numerical matrix inspector with one-click CSV export, Document-Word heatmap, **Pairwise Inter-Document Similarity Heatmap**, and a live **Information Retrieval (Search Engine Simulator)** that ranks corpus documents against user queries using cosine similarity.
+6. **🌌 Word Embeddings:** Interactive 2D PCA projection with semantic trajectory shift arrows, 3D vector space orbit, live cosine similarity comparator, **Top-$K$ Nearest Semantic Neighbors Explorer** with similarity ranking charts, **Parallelogram Law Vector Geometry visualizer** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), and 2D coordinates CSV export.
 7. **⚡ Global Example Presets:** One-click benchmark sentence loader across tabs.
 
 ---

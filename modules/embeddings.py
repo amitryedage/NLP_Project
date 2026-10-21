@@ -286,6 +286,15 @@ def render_embeddings_tab():
         st.plotly_chart(fig, use_container_width=True)
         st.caption("🔍 **Interactive:** Hover over dots, zoom, or pan to explore how conceptual clusters naturally emerge.")
 
+        # Export 2D coordinates CSV
+        st.download_button(
+            label="📥 Download 2D Coordinates (CSV)",
+            data=df_plot.to_csv(index=False).encode("utf-8"),
+            file_name="pca_embeddings_2d.csv",
+            mime="text/csv",
+            key="btn_download_pca_coords",
+        )
+
     st.markdown("---")
 
     # 6. Section B: Pairwise Cosine Similarity Comparator
@@ -352,6 +361,141 @@ def render_embeddings_tab():
                 """,
                 unsafe_allow_html=True,
             )
+
+    st.markdown("---")
+
+    # --- Section C: Top-K Nearest Semantic Neighbors Explorer ---
+    st.subheader("🔍 Top-K Nearest Semantic Neighbors Explorer")
+    st.caption("Search through high-dimensional continuous space to discover the closest conceptual neighbors for any word:")
+
+    col_np1, col_np2, col_np3, col_np4 = st.columns(4)
+    with col_np1:
+        if st.button("Word: 'hospital'", use_container_width=True, key="btn_nn_hospital"):
+            st.session_state["nn_query_val"] = "hospital"
+    with col_np2:
+        if st.button("Word: 'python'", use_container_width=True, key="btn_nn_python"):
+            st.session_state["nn_query_val"] = "python"
+    with col_np3:
+        if st.button("Word: 'physics'", use_container_width=True, key="btn_nn_physics"):
+            st.session_state["nn_query_val"] = "physics"
+    with col_np4:
+        if st.button("Word: 'space'", use_container_width=True, key="btn_nn_space"):
+            st.session_state["nn_query_val"] = "space"
+
+    default_nn_word = st.session_state.get("nn_query_val", "hospital")
+    col_input, col_k = st.columns([3, 2])
+    with col_input:
+        target_nn_word = st.text_input(
+            "Enter target word to query nearest neighbors:",
+            value=default_nn_word,
+            key="target_nn_input"
+        ).strip().lower()
+    with col_k:
+        k_neighbors = st.slider("Select K (Top Neighbors):", min_value=3, max_value=12, value=6, key="slider_k_nn")
+
+    if target_nn_word:
+        t_nn = nlp(target_nn_word)[0] if len(nlp(target_nn_word)) > 0 else None
+        if not (t_nn and t_nn.has_vector and t_nn.vector_norm > 0):
+            st.warning(f"⚠️ Word `'{target_nn_word}'` is Out-of-Vocabulary in `en_core_web_md`.")
+        else:
+            # Query spaCy vectors for nearest neighbors
+            found_neighbors = []
+            seen_words = {target_nn_word}
+            try:
+                queries = np.array([t_nn.vector])
+                keys, best_rows, scores = nlp.vocab.vectors.most_similar(queries, batch_size=1024, at=min(k_neighbors * 6, 120), sort=True)
+                for key, sim_val in zip(keys[0], scores[0]):
+                    candidate_word = nlp.vocab.strings[key].strip().lower()
+                    if candidate_word.isalpha() and candidate_word not in seen_words and len(candidate_word) > 2:
+                        seen_words.add(candidate_word)
+                        found_neighbors.append((candidate_word, float(sim_val)))
+                        if len(found_neighbors) >= k_neighbors:
+                            break
+            except Exception:
+                found_neighbors = []
+
+            # Robust fallback pool if vocabulary lookup needs supplementing
+            if len(found_neighbors) < k_neighbors:
+                fallback_pool = [
+                    "doctor", "nurse", "clinic", "patient", "medicine", "health", "treatment", "ambulance",
+                    "computer", "software", "algorithm", "code", "programming", "hardware", "internet",
+                    "astronomy", "universe", "planet", "galaxy", "rocket", "telescope", "orbit", "cosmos",
+                    "science", "chemistry", "mathematics", "theory", "laboratory", "experiment", "gravity",
+                    "school", "university", "student", "teacher", "education", "knowledge", "library",
+                    "city", "country", "government", "capital", "population", "president", "policy",
+                    "money", "finance", "bank", "economy", "market", "currency", "investment", "wealth",
+                    "car", "vehicle", "automobile", "engine", "highway", "traffic", "driver", "transport"
+                ]
+                norm_q = t_nn.vector_norm
+                pool_scores = []
+                for pw in fallback_pool:
+                    if pw not in seen_words:
+                        ptok = nlp(pw)[0]
+                        if ptok and ptok.has_vector and ptok.vector_norm > 0:
+                            sim = np.dot(t_nn.vector, ptok.vector) / (norm_q * ptok.vector_norm)
+                            pool_scores.append((pw, float(sim)))
+                pool_scores.sort(key=lambda x: x[1], reverse=True)
+                for pw, psim in pool_scores:
+                    if pw not in seen_words:
+                        seen_words.add(pw)
+                        found_neighbors.append((pw, psim))
+                        if len(found_neighbors) >= k_neighbors:
+                            break
+
+            if found_neighbors:
+                col_nn_list, col_nn_chart = st.columns([1, 1])
+                with col_nn_list:
+                    st.markdown(f"**Top {len(found_neighbors)} Semantic Neighbors for '{target_nn_word.title()}':**")
+                    rank_icons = ["🥇", "🥈", "🥉"] + [f"{i}️⃣" for i in range(4, len(found_neighbors) + 1)]
+                    for idx, (nw, nscore) in enumerate(found_neighbors):
+                        score_pct = max(0.0, nscore * 100)
+                        st.markdown(
+                            f"""
+                            <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; 
+                                        border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; 
+                                        display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="font-weight: 700; color: {COLOR_TEXT};">{rank_icons[idx]} {nw.title()}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background-color: {PASTEL_GREEN if nscore >= 0.6 else PASTEL_YELLOW}; 
+                                                 color: {COLOR_TEXT}; padding: 3px 10px; border-radius: 12px; 
+                                                 font-weight: 600; font-size: 0.85rem;">
+                                        {score_pct:.1f}% Similarity
+                                    </span>
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+
+                with col_nn_chart:
+                    df_nn = pd.DataFrame({
+                        "Word": [nw.title() for nw, _ in reversed(found_neighbors)],
+                        "Cosine Similarity": [nscore for _, nscore in reversed(found_neighbors)],
+                    })
+                    fig_nn = px.bar(
+                        df_nn,
+                        x="Cosine Similarity",
+                        y="Word",
+                        orientation="h",
+                        text="Cosine Similarity",
+                        template="plotly_white",
+                        color="Cosine Similarity",
+                        color_continuous_scale="Viridis",
+                    )
+                    fig_nn.update_layout(
+                        margin=dict(l=20, r=20, t=20, b=20),
+                        height=max(240, len(found_neighbors) * 38),
+                        plot_bgcolor=COLOR_BG,
+                        paper_bgcolor=COLOR_BG,
+                        coloraxis_showscale=False,
+                    )
+                    fig_nn.update_traces(
+                        texttemplate="%{text:.3f}",
+                        textposition="outside",
+                    )
+                    st.plotly_chart(fig_nn, use_container_width=True)
 
     st.markdown("---")
 

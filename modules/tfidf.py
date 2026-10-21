@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from utils.theme import (
     COLOR_BG,
     COLOR_SECONDARY_BG,
@@ -17,6 +18,9 @@ from utils.theme import (
     chip,
     PASTEL_BLUE,
     PASTEL_PURPLE,
+    PASTEL_GREEN,
+    PASTEL_YELLOW,
+    PASTEL_PINK,
 )
 
 # Default corpus: 4 distinct documents about AI, NLP, and Robotics
@@ -146,6 +150,15 @@ def render_tfidf_tab():
 
     st.dataframe(formatted_df, use_container_width=True)
 
+    # Export Matrix Button
+    st.download_button(
+        label="📥 Download Feature Matrix (CSV)",
+        data=df_matrix.to_csv().encode("utf-8"),
+        file_name="tfidf_feature_matrix.csv",
+        mime="text/csv",
+        key="btn_download_tfidf_matrix",
+    )
+
     # 7. Interactive Heatmap (Plotly)
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("🔥 Document-Word Importance Heatmap")
@@ -169,6 +182,35 @@ def render_tfidf_tab():
         xaxis=dict(tickangle=45),
     )
     st.plotly_chart(fig_heat, use_container_width=True)
+
+    # 7b. Inter-Document Cosine Similarity Heatmap
+    with st.expander("📑 Pairwise Document-to-Document Similarity Heatmap", expanded=False):
+        st.markdown(
+            f"<span style='color: {COLOR_MUTED}; font-size: 0.9rem;'>"
+            f"Measures semantic overlap between documents by computing pairwise cosine similarities ($S_{{ij}} \\in [0, 1]$):"
+            f"</span>",
+            unsafe_allow_html=True,
+        )
+        doc_sim_matrix = cosine_similarity(matrix_sparse)
+        df_doc_sim = pd.DataFrame(doc_sim_matrix, index=doc_names, columns=doc_names)
+
+        fig_doc_sim = px.imshow(
+            df_doc_sim,
+            labels=dict(x="Document", y="Document", color="Cosine Similarity"),
+            x=doc_names,
+            y=doc_names,
+            color_continuous_scale="Teal",
+            text_auto=".2f",
+            aspect="auto",
+            template="plotly_white",
+        )
+        fig_doc_sim.update_layout(
+            margin=dict(l=20, r=20, t=20, b=20),
+            height=280,
+            plot_bgcolor=COLOR_BG,
+            paper_bgcolor=COLOR_BG,
+        )
+        st.plotly_chart(fig_doc_sim, use_container_width=True)
 
     st.markdown("---")
 
@@ -242,6 +284,108 @@ def render_tfidf_tab():
             st.plotly_chart(fig_bar, use_container_width=True)
         else:
             st.info("No words found for this document.")
+
+    # 9. Information Retrieval (Search Engine Simulator)
+    st.markdown("---")
+    st.subheader("🔎 Search Engine / Information Retrieval (IR) Simulator")
+    st.markdown(
+        f"""
+        <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;">
+            <div style="font-weight: 600; font-size: 1.0rem; color: {COLOR_TEXT}; margin-bottom: 4px;">
+                How Modern Search Engines Rank Relevant Documents
+            </div>
+            <div style="color: {COLOR_MUTED}; font-size: 0.9rem; line-height: 1.5;">
+                When you enter a search query, search engines project your query into the same TF-IDF vector space 
+                and calculate the <b>Cosine Similarity</b> against every document in the corpus. Documents with the highest cosine score rank at the top!
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Sample query presets
+    col_q1, col_q2, col_q3 = st.columns(3)
+    with col_q1:
+        if st.button("Query 1: 'artificial intelligence'", use_container_width=True, key="btn_q1"):
+            st.session_state["search_query_val"] = "artificial intelligence"
+    with col_q2:
+        if st.button("Query 2: 'language models'", use_container_width=True, key="btn_q2"):
+            st.session_state["search_query_val"] = "language models"
+    with col_q3:
+        if st.button("Query 3: 'robotics and medicine'", use_container_width=True, key="btn_q3"):
+            st.session_state["search_query_val"] = "robotics and medicine"
+
+    default_search_query = st.session_state.get("search_query_val", "artificial intelligence")
+    user_query = st.text_input(
+        "Enter your search query to rank the corpus:",
+        value=default_search_query,
+        key="search_engine_query_input",
+    )
+
+    if user_query and user_query.strip():
+        # Vectorize query using the fitted vectorizer
+        query_sparse = vectorizer.transform([user_query])
+        query_dense = query_sparse.toarray()[0]
+
+        # Calculate cosine similarity with all documents
+        query_sims = cosine_similarity(query_sparse, matrix_sparse)[0]
+
+        # Match tokens in query
+        matched_terms = [feature_names[i] for i in range(len(feature_names)) if query_dense[i] > 0]
+
+        st.markdown("**Query Feature Tokens Matched:**")
+        if matched_terms:
+            q_chips = []
+            for term in matched_terms:
+                term_score = query_dense[vectorizer.vocabulary_[term]]
+                q_chips.append(chip(f"{term} (weight: {term_score:.2f})" if decimals == 3 else f"{term}", color=PASTEL_GREEN))
+            st.markdown(f'<div class="chip-container">{" ".join(q_chips)}</div>', unsafe_allow_html=True)
+        else:
+            st.warning("⚠️ None of the query terms appear in the corpus vocabulary (Out-of-Vocabulary query).")
+
+        st.markdown("<br><b>🏆 Ranked Document Results:</b>", unsafe_allow_html=True)
+        ranked_indices = np.argsort(query_sims)[::-1]
+        medals = ["🥇", "🥈", "🥉"] + [f"{i}️⃣" for i in range(4, len(doc_lines) + 1)]
+
+        for rank, doc_idx in enumerate(ranked_indices):
+            score = query_sims[doc_idx]
+            d_name = f"Doc {doc_idx + 1}"
+            d_text = doc_lines[doc_idx]
+            match_pct = score * 100
+
+            if score > 0.40:
+                card_bg = "#F0FDF4"  # light green tint
+                badge_bg = PASTEL_GREEN
+                badge_text = "Strong Match"
+            elif score > 0.10:
+                card_bg = "#FEFCE8"  # light yellow tint
+                badge_bg = PASTEL_YELLOW
+                badge_text = "Partial Match"
+            else:
+                card_bg = COLOR_SECONDARY_BG
+                badge_bg = "#E5E7EB"
+                badge_text = "Low Relevance"
+
+            st.markdown(
+                f"""
+                <div style="background-color: {card_bg}; border: 1px solid {COLOR_BORDER}; 
+                            border-radius: 10px; padding: 14px 18px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; font-size: 1.05rem; color: {COLOR_TEXT};">
+                            {medals[rank]} {d_name}
+                        </span>
+                        <span style="background-color: {badge_bg}; color: {COLOR_TEXT}; padding: 4px 10px; 
+                                     border-radius: 12px; font-weight: 600; font-size: 0.85rem;">
+                            {match_pct:.1f}% Match ({badge_text})
+                        </span>
+                    </div>
+                    <div style="color: {COLOR_TEXT}; font-size: 0.93rem; margin-top: 6px; line-height: 1.4;">
+                        "{d_text}"
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     # 9. Educational Takeaway Box
     with st.expander("💡 Deep Dive: Mathematical Formulation of TF-IDF"):

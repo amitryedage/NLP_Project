@@ -67,11 +67,15 @@
 ---
 
 ### 3:00 – 3:55 | Tabs 5 & 6: TF-IDF, 3D Orbit & Vector Arithmetic
-* **Action:** Click on **📊 TF-IDF**, show the heatmap, then switch to **🌌 Embeddings**. Point out the **Semantic Trajectory Arrows** in 2D PCA, toggle to **3D Interactive Orbit** and spin with mouse, then scroll down to the **Vector Arithmetic Solver** and the **Parallelogram Law Visualizer**.
+* **Action:** Click on **📊 TF-IDF**, show the heatmap and expand the **Pairwise Document-to-Document Similarity Heatmap**, then test the **Search Engine Simulator** with the query `"artificial intelligence"`. Next, switch to **🌌 Embeddings**: show the **Top-K Nearest Neighbors Explorer** for `"hospital"`, point out the **Semantic Trajectory Arrows**, toggle to **3D Interactive Orbit**, and showcase the **Parallelogram Law Visualizer**.
 * **Speaker:**
-  > *"In **Tab 5**, we show how text becomes numerical matrices. Our **TF-IDF Heatmap** visualizes word importance across documents. Notice how common words receive lower weights, while rare, discriminative words shine as top keywords.*
+  > *"In **Tab 5**, we show how computers convert text into numerical weights. Our **TF-IDF Heatmap** visualizes word importance across documents, and our **Inter-Document Similarity Heatmap** reveals semantic overlaps between documents.*
+  >
+  > *To answer why TF-IDF was invented, look at our live **Search Engine / Information Retrieval Simulator**: when we query `'artificial intelligence'`, the engine vectorizes our query and calculates cosine similarity across the entire corpus in real time, immediately ranking Doc 3 and Doc 4 at the top with match percentages!*
   >
   > *Finally, in **Tab 6: Word Embeddings**, we extract 300-dimensional dense vectors from spaCy's `en_core_web_md`.*
+  >
+  > *With our **Top-K Nearest Neighbors Explorer**, users can search any word—like `'hospital'`—and immediately see its closest semantic neighbors like `'clinic'` and `'doctor'` ranked with similarity bars.*
   >
   > *In the 2D projection, our **Semantic Trajectory Arrows** visually link analogical pairs like `Man ➔ King` and `Woman ➔ Queen`. You can also toggle to our **3D Interactive Orbit** to freely rotate and zoom into semantic clusters.*
   >
