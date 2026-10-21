@@ -59,16 +59,20 @@
 
 ---
 
-### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging, Syntactic Dependency Tree & DisplaCy NER
-* **Action:** Click on **🏷️ POS Tags**, scroll to the **Syntactic Dependency Tree**, then switch to **🔍 NER**.
+### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging, Markov Grammar Flow & DisplaCy NER
+* **Action:** Click on **🏷️ POS Tags**, scroll to the **Syntactic Dependency Tree**, expand the **POS Transition Flow Matrix**, then switch to **🔍 NER** to demonstrate the **Entity Category Filter** and **Co-occurrence Links**.
 * **Speaker:**
   > *"In **Tab 3**, we use spaCy's statistical tagger to classify every word into its grammatical role (Noun, Verb, Adjective, etc.) with a live Plotly frequency bar chart and human-readable Penn Treebank explanations.*
   >
   > *Scroll down to our live **Syntactic Dependency Parse Tree**, which renders curved grammatical arcs connecting Subject, Root Verb, and Direct Object.*
   >
+  > *Expand our **POS Transition Probability Matrix**: it models bigram grammar flow as a Markovian heatmap, showing how likely determiners lead to nouns or verbs lead to adverbs—the core logic behind HMMs and CRFs!*
+  >
   > *Moving to **Tab 4: Named Entity Recognition**, we integrate spaCy's DisplaCy visualizer styled with our light pastel palette. On our benchmark sentence:*
   > `'Elon Musk visited Mumbai on 5 May 2024 to announce Tesla's $2 billion investment...'`
-  > *The model extracts `Elon Musk` as a PERSON, `Mumbai` as a GPE (geopolitical entity), `Tesla` as an ORG, and `$2 billion` as MONEY, complete with start-end character spans."*
+  > *The model extracts `Elon Musk` as a PERSON, `Mumbai` as a GPE, `Tesla` as an ORG, and `$2 billion` as MONEY, complete with start-end character spans.*
+  >
+  > *Notice our **Entity Category Multiselect Filter** and the **Entity Co-occurrence Links** expander, which automatically extracts entity pairings to seed relation extraction in modern Knowledge Graphs!"*
 
 ---
 

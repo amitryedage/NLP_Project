@@ -207,6 +207,71 @@ def render_pos_tab():
     except Exception as e:
         st.info(f"Dependency tree visualizer ready for standard sentences.")
 
+    # 8b. POS Transition Probability Matrix (Markov Grammar Flow)
+    with st.expander("🔄 POS Transition Probability Matrix (Markov Grammar Flow)", expanded=False):
+        st.markdown(
+            f"<span style='color: {COLOR_MUTED}; font-size: 0.9rem;'>"
+            f"Shows the probability $P(\\text{{Tag}}_t \\mid \\text{{Tag}}_{{t-1}})$ of one part of speech following another. "
+            f"This Markovian transition matrix forms the statistical backbone of sequence taggers (HMMs & CRFs):"
+            f"</span>",
+            unsafe_allow_html=True,
+        )
+
+        pos_sequence = [token.pos_ for token in doc if not token.is_space]
+        if len(pos_sequence) >= 2:
+            unique_pos_sorted = sorted(list(set(pos_sequence)))
+            trans_counts = pd.DataFrame(0, index=unique_pos_sorted, columns=unique_pos_sorted)
+
+            for i in range(len(pos_sequence) - 1):
+                prev_tag = pos_sequence[i]
+                next_tag = pos_sequence[i + 1]
+                trans_counts.loc[prev_tag, next_tag] += 1
+
+            # Normalize row-wise to get transition probabilities P(next | prev)
+            row_sums = trans_counts.sum(axis=1)
+            trans_probs = trans_counts.div(row_sums.replace(0, 1), axis=0) * 100
+
+            fig_trans = px.imshow(
+                trans_probs,
+                labels=dict(x="Next Tag (t)", y="Current Tag (t-1)", color="Transition Probability (%)"),
+                x=unique_pos_sorted,
+                y=unique_pos_sorted,
+                color_continuous_scale="Blues",
+                text_auto=".0f",
+                aspect="auto",
+                template="plotly_white",
+            )
+            fig_trans.update_layout(
+                title="POS-to-POS Transition Probability Matrix (%)",
+                height=320,
+                margin=dict(l=20, r=20, t=40, b=20),
+                plot_bgcolor=COLOR_BG,
+                paper_bgcolor=COLOR_BG,
+            )
+            st.plotly_chart(fig_trans, use_container_width=True)
+
+            # Highlight dominant grammatical patterns detected
+            st.markdown("<b>Frequent Grammar Patterns Detected in Input:</b>", unsafe_allow_html=True)
+            pattern_chips = []
+            for i in range(len(pos_sequence) - 1):
+                p_tag, n_tag = pos_sequence[i], pos_sequence[i + 1]
+                p_word, n_word = doc[i].text, doc[i + 1].text
+                if (p_tag, n_tag) in [("DET", "NOUN"), ("DET", "ADJ"), ("ADJ", "NOUN"), ("NOUN", "VERB"), ("VERB", "ADV"), ("ADP", "DET"), ("VERB", "NOUN")]:
+                    pattern_label = f"{p_word} ({p_tag}) ➔ {n_word} ({n_tag})"
+                    pattern_chips.append(chip(pattern_label, color=PASTEL_BLUE))
+            if pattern_chips:
+                seen_pat = set()
+                dedup_chips = []
+                for pc in pattern_chips:
+                    if pc not in seen_pat:
+                        seen_pat.add(pc)
+                        dedup_chips.append(pc)
+                st.markdown(f'<div class="chip-container">{" ".join(dedup_chips[:8])}</div>', unsafe_allow_html=True)
+            else:
+                st.caption("Standard syntactic sequences detected.")
+        else:
+            st.info("Enter at least 2 tokens to compute POS transition probabilities.")
+
     # 9. Detailed Tabular Breakdown
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Grammatical Breakdown Table")
@@ -363,19 +428,32 @@ def render_ner_tab():
 
     st.markdown("---")
 
-    # 7. Grouped Entity Chips
-    st.subheader("📌 Extracted Entities by Category")
-    grouped_chips = []
-    for rec in entity_records:
-        color = rec["Color"]
-        grouped_chips.append(chip(text=rec["Entity Text"], color=color, subtitle=rec["Label / Type"]))
+    # 7. Entity Category Filter
+    col_filter, _ = st.columns([2, 1])
+    with col_filter:
+        selected_types = st.multiselect(
+            "Filter Displayed Entities by Category:",
+            options=sorted(list(entity_counts.keys())),
+            default=sorted(list(entity_counts.keys())),
+            key="ner_category_multiselect"
+        )
 
-    st.markdown(f'<div class="chip-container">{" ".join(grouped_chips)}</div>', unsafe_allow_html=True)
+    filtered_records = [r for r in entity_records if r["Label / Type"] in selected_types]
+
+    st.subheader("📌 Extracted Entities")
+    if filtered_records:
+        grouped_chips = []
+        for rec in filtered_records:
+            color = rec["Color"]
+            grouped_chips.append(chip(text=rec["Entity Text"], color=color, subtitle=rec["Label / Type"]))
+        st.markdown(f'<div class="chip-container">{" ".join(grouped_chips)}</div>', unsafe_allow_html=True)
+    else:
+        st.info("No entities match the selected category filter.")
 
     # 8. Structured Entity Table
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📋 Entity Details Table")
-    df_entities = pd.DataFrame(entity_records)[["Entity Text", "Label / Type", "Category Meaning", "Start Char", "End Char"]]
+    df_entities = pd.DataFrame(filtered_records)[["Entity Text", "Label / Type", "Category Meaning", "Start Char", "End Char"]] if filtered_records else pd.DataFrame(columns=["Entity Text", "Label / Type", "Category Meaning", "Start Char", "End Char"])
     st.dataframe(df_entities, use_container_width=True, hide_index=True)
 
     # Export NER Entities Button
@@ -386,6 +464,23 @@ def render_ner_tab():
         mime="text/csv",
         key="btn_download_ner_table"
     )
+
+    # 8b. Entity Co-occurrence & Relationship Graph
+    if len(entities) >= 2:
+        with st.expander("🌐 Entity Co-occurrence & Relationship Links", expanded=False):
+            st.markdown(
+                f"<span style='color: {COLOR_MUTED}; font-size: 0.9rem;'>"
+                f"Extracts co-occurring entities that appear together in the text to seed Knowledge Graphs and relation extraction:"
+                f"</span>",
+                unsafe_allow_html=True,
+            )
+            rel_chips = []
+            for i in range(len(entities)):
+                for j in range(i + 1, len(entities)):
+                    e1, e2 = entities[i], entities[j]
+                    rel_label = f"{e1.text} ({e1.label_}) ⟷ {e2.text} ({e2.label_})"
+                    rel_chips.append(chip(rel_label, color=PASTEL_PURPLE))
+            st.markdown(f'<div class="chip-container">{" ".join(rel_chips[:10])}</div>', unsafe_allow_html=True)
 
     # 9. Educational Takeaway Box
     with st.expander("💡 Deep Dive: How spaCy Identifies Named Entities"):

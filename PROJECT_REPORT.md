@@ -80,13 +80,13 @@ NLP_Project/
 
 ### Module 3: Part-of-Speech Tagging (`modules/pos_ner.py`)
 * **Purpose:** Assigns universal grammatical classes, fine-grained Penn Treebank tags, and syntactic dependencies.
-* **Algorithms:** spaCy transition-based dependency parser and tagger.
-* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), detailed definitions via `spacy.explain()`, and one-click CSV grammatical breakdown export.
+* **Algorithms:** spaCy transition-based dependency parser, statistical tagger, and Markovian POS transition probability calculations.
+* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), detailed definitions via `spacy.explain()`, an interactive **POS Transition Probability Matrix (Markov Grammar Flow)** heatmap ($P(\text{Tag}_t \mid \text{Tag}_{t-1})$), dominant syntactic collocation chips (e.g. `DET ➔ NOUN`, `NOUN ➔ VERB`), and one-click CSV grammatical breakdown export.
 
 ### Module 4: Named Entity Recognition (`modules/pos_ner.py`)
-* **Purpose:** Identifies and classifies real-world entities into predefined semantic classes.
-* **Algorithms:** spaCy pre-trained NER pipeline.
-* **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, extracted entity tables with character boundary offsets, category breakdown chips, and one-click CSV entity export.
+* **Purpose:** Identifies and classifies real-world entities into predefined semantic classes and models relation co-occurrence.
+* **Algorithms:** spaCy pre-trained NER pipeline and pairwise co-occurrence combinatorics.
+* **Visuals:** Custom light-themed `spacy.displacy` inline visualizer, interactive **Entity Category Multiselect Filter**, extracted entity tables with character boundary offsets, category breakdown chips, an expandable **Entity Co-occurrence & Relationship Graph** (seeding Knowledge Graph relation extraction), and one-click CSV entity export.
 
 ### Module 5: TF-IDF & Bag of Words (`modules/tfidf.py`)
 * **Purpose:** Visualizes multi-document vectorization, inverse term frequency weighting, and information retrieval.
@@ -114,6 +114,8 @@ NLP_Project/
   * Asserts nearest semantic neighbor ranking in 300D vector space.
   * Asserts stopword identification and filtering against standard English stopword corpora.
   * Asserts dynamic programming Levenshtein distance matrix accuracy and zero edit cost for identical strings.
+  * Asserts POS sequence transition bigram calculations (`DET ➔ ADJ` and `NOUN ➔ VERB`).
+  * Asserts entity co-occurrence pair generation for knowledge graph relation extraction.
 
 ---
 
