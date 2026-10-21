@@ -291,6 +291,48 @@ def render_tokenization_tab():
     else:
         st.info("Enter at least 4 words to generate Zipf's Law rank distribution.")
 
+    # 7b. Hierarchical Linguistic Word Treemap
+    with st.expander("🗺️ Hierarchical Linguistic Word Treemap (Interactive Word Cloud Alternative)", expanded=False):
+        st.markdown(
+            f"<span style='color: {COLOR_MUTED}; font-size: 0.9rem;'>"
+            f"A modern, interactive hierarchical alternative to cluttered static word clouds. "
+            f"Tokens are structured by linguistic classification (Content vs. Stopwords) and token length, "
+            f"with rectangle dimensions proportional to empirical frequency:"
+            f"</span>",
+            unsafe_allow_html=True
+        )
+        if len(word_freq) >= 3:
+            treemap_records = []
+            for w, count in word_freq.items():
+                is_stop = w.lower() in SPACY_STOP_WORDS
+                cat = "Stopwords (Grammatical)" if is_stop else "Content Words (Lexical)"
+                length_cat = "Short (≤3)" if len(w) <= 3 else ("Medium (4-7)" if len(w) <= 7 else "Long (≥8)")
+                treemap_records.append({
+                    "Word": w,
+                    "Category": cat,
+                    "Length Group": length_cat,
+                    "Frequency": count,
+                    "Token Length": len(w)
+                })
+            df_treemap = pd.DataFrame(treemap_records)
+            fig_tree = px.treemap(
+                df_treemap,
+                path=["Category", "Length Group", "Word"],
+                values="Frequency",
+                color="Token Length",
+                color_continuous_scale="Purples",
+                title="Hierarchical Linguistic Word Treemap",
+            )
+            fig_tree.update_layout(
+                height=350,
+                margin=dict(l=10, r=10, t=35, b=10),
+                plot_bgcolor=COLOR_BG,
+                paper_bgcolor=COLOR_BG
+            )
+            st.plotly_chart(fig_tree, use_container_width=True)
+        else:
+            st.info("Enter more words to generate the hierarchical treemap.")
+
     # 8. Interactive N-Gram Language Model & Next-Word Markov Predictor
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("🔮 N-Gram Language Model & Next-Word Predictor (Markov LM)")

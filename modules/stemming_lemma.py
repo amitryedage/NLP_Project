@@ -307,6 +307,153 @@ def render_stemming_lemma_tab():
         )
         st.plotly_chart(fig_dp, use_container_width=True)
 
+    # 7c. Morphological Morpheme Anatomy & Affix Decomposition Inspector
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🧬 Morphological Morpheme Anatomy (Inflectional vs. Derivational)")
+    st.markdown(
+        f"""
+        <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 0.95rem; color: {COLOR_TEXT}; margin-bottom: 3px;">
+                Morpheme Anatomy: How Words are Built
+            </div>
+            <div style="color: {COLOR_MUTED}; font-size: 0.88rem; line-height: 1.4;">
+                Words are constructed from <b>morphemes</b> (the smallest units of linguistic meaning). 
+                Morphology distinguishes between:
+                <br>
+                • <b>Inflectional Affixes:</b> Modifies grammatical tense, number, or aspect without changing the word class (e.g. <i>play</i> [V] ➔ <i>playing</i> [V]).
+                <br>
+                • <b>Derivational Affixes:</b> Creates entirely new words, frequently changing the grammatical class (e.g. <i>happy</i> [Adj] ➔ <i>unhappiness</i> [N]).
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Presets for Morphological Decomposition
+    c_mp1, c_mp2, c_mp3, c_mp4 = st.columns(4)
+    with c_mp1:
+        if st.button("Word: 'unhappiness'", use_container_width=True, key="btn_morph_unhappy"):
+            st.session_state["morph_word_input"] = "unhappiness"
+    with c_mp2:
+        if st.button("Word: 'transformations'", use_container_width=True, key="btn_morph_transform"):
+            st.session_state["morph_word_input"] = "transformations"
+    with c_mp3:
+        if st.button("Word: 'rebuilding'", use_container_width=True, key="btn_morph_rebuild"):
+            st.session_state["morph_word_input"] = "rebuilding"
+    with c_mp4:
+        if st.button("Word: 'connections'", use_container_width=True, key="btn_morph_connect"):
+            st.session_state["morph_word_input"] = "connections"
+
+    default_morph = st.session_state.get("morph_word_input", "unhappiness")
+    morph_word = st.text_input("Enter a complex morphological word to decompose:", value=default_morph, key="morph_text_input").strip().lower()
+
+    if morph_word:
+        # Morphological Rule Database for common prefixes, derivational and inflectional suffixes
+        PREFIXES = {
+            "un": ("Derivational Prefix", "Reversal / Negation (e.g. un-happy)"),
+            "re": ("Derivational Prefix", "Repetition / Again (e.g. re-build)"),
+            "dis": ("Derivational Prefix", "Negation / Separation (e.g. dis-connect)"),
+            "in": ("Derivational Prefix", "Negation / Inward (e.g. in-accurate)"),
+            "im": ("Derivational Prefix", "Negation (e.g. im-possible)"),
+            "trans": ("Derivational Prefix", "Across / Through (e.g. trans-form)"),
+            "pre": ("Derivational Prefix", "Beforehand (e.g. pre-view)"),
+            "anti": ("Derivational Prefix", "Opposing / Against (e.g. anti-virus)"),
+            "mis": ("Derivational Prefix", "Wrongly / Badly (e.g. mis-understand)"),
+        }
+
+        INFLECTIONAL_SUFFIXES = {
+            "ing": ("Inflectional Suffix", "Present Participle / Continuous Aspect"),
+            "ed": ("Inflectional Suffix", "Past Tense / Past Participle"),
+            "es": ("Inflectional Suffix", "Plural Noun / 3rd Person Singular Verb"),
+            "s": ("Inflectional Suffix", "Plural Noun / 3rd Person Singular Verb"),
+            "er": ("Inflectional Suffix", "Comparative Degree (Adj) or Agentive"),
+            "est": ("Inflectional Suffix", "Superlative Degree (Adj)"),
+        }
+
+        DERIVATIONAL_SUFFIXES = {
+            "ation": ("Derivational Suffix", "Verb ➔ Noun (Action / Process)"),
+            "tion": ("Derivational Suffix", "Verb ➔ Noun (State / Action)"),
+            "ness": ("Derivational Suffix", "Adjective ➔ Noun (Quality / State)"),
+            "ment": ("Derivational Suffix", "Verb ➔ Noun (Action / Result)"),
+            "able": ("Derivational Suffix", "Verb ➔ Adjective (Capability)"),
+            "ible": ("Derivational Suffix", "Verb ➔ Adjective (Capability)"),
+            "ity": ("Derivational Suffix", "Adjective ➔ Noun (State / Property)"),
+            "ful": ("Derivational Suffix", "Noun ➔ Adjective (Full of)"),
+            "less": ("Derivational Suffix", "Noun ➔ Adjective (Without)"),
+            "ize": ("Derivational Suffix", "Noun/Adj ➔ Verb (Cause to be)"),
+            "ise": ("Derivational Suffix", "Noun/Adj ➔ Verb (Cause to be)"),
+            "ly": ("Derivational Suffix", "Adjective ➔ Adverb (Manner)"),
+            "al": ("Derivational Suffix", "Noun ➔ Adjective (Relating to)"),
+        }
+
+        # Step 1: Detect Prefix
+        detected_prefix = None
+        rem_word = morph_word
+        for p, (p_type, p_desc) in sorted(PREFIXES.items(), key=lambda x: len(x[0]), reverse=True):
+            if rem_word.startswith(p) and len(rem_word) > len(p) + 2:
+                detected_prefix = (p, p_type, p_desc)
+                rem_word = rem_word[len(p):]
+                break
+
+        # Step 2: Detect Inflectional Suffix
+        detected_infl = None
+        for inf, (inf_type, inf_desc) in sorted(INFLECTIONAL_SUFFIXES.items(), key=lambda x: len(x[0]), reverse=True):
+            if rem_word.endswith(inf) and len(rem_word) > len(inf) + 2:
+                detected_infl = (inf, inf_type, inf_desc)
+                rem_word = rem_word[:-len(inf)]
+                break
+
+        # Step 3: Detect Derivational Suffix
+        detected_deriv = None
+        for der, (der_type, der_desc) in sorted(DERIVATIONAL_SUFFIXES.items(), key=lambda x: len(x[0]), reverse=True):
+            if rem_word.endswith(der) and len(rem_word) > len(der) + 2:
+                detected_deriv = (der, der_type, der_desc)
+                rem_word = rem_word[:-len(der)]
+                break
+
+        # Base Root
+        base_root = rem_word
+        # Lemmatize base root
+        root_lemma = lemmatizer.lemmatize(base_root)
+        if root_lemma.endswith('i'):
+            root_lemma = root_lemma[:-1] + 'y'
+
+        # Build Chips & Records
+        morpheme_chips = []
+        morph_records = []
+
+        if detected_prefix:
+            p_text, p_type, p_desc = detected_prefix
+            morpheme_chips.append(chip(f"{p_text}-", color=PASTEL_PINK, subtitle=p_type))
+            morph_records.append({"Morpheme": f"{p_text}-", "Role": "Prefix", "Morphological Category": p_type, "Linguistic Function": p_desc})
+
+        morpheme_chips.append(chip(root_lemma, color=PASTEL_GREEN, subtitle="Root Lemma"))
+        morph_records.append({"Morpheme": root_lemma, "Role": "Root / Base", "Morphological Category": "Free Lexical Morpheme", "Linguistic Function": "Core semantic concept foundation"})
+
+        if detected_deriv:
+            d_text, d_type, d_desc = detected_deriv
+            morpheme_chips.append(chip(f"-{d_text}", color=PASTEL_PURPLE, subtitle=d_type))
+            morph_records.append({"Morpheme": f"-{d_text}", "Role": "Derivational Suffix", "Morphological Category": d_type, "Linguistic Function": d_desc})
+
+        if detected_infl:
+            i_text, i_type, i_desc = detected_infl
+            morpheme_chips.append(chip(f"-{i_text}", color=PASTEL_YELLOW, subtitle=i_type))
+            morph_records.append({"Morpheme": f"-{i_text}", "Role": "Inflectional Suffix", "Morphological Category": i_type, "Linguistic Function": i_desc})
+
+        st.markdown(f"**Morpheme Anatomy of '{morph_word}':**")
+        st.markdown(f'<div class="chip-container">{" ".join(morpheme_chips)}</div>', unsafe_allow_html=True)
+
+        df_morph = pd.DataFrame(morph_records)
+        st.dataframe(df_morph, use_container_width=True, hide_index=True)
+
+        st.download_button(
+            label="📥 Download Morpheme Breakdown (CSV)",
+            data=df_morph.to_csv(index=False).encode("utf-8"),
+            file_name=f"morpheme_anatomy_{morph_word}.csv",
+            mime="text/csv",
+            key="btn_download_morph_table"
+        )
+
     # 8. Educational Takeaway Box
     with st.expander("💡 Deep Dive: Porter vs. Snowball vs. WordNet Rules"):
         st.markdown(

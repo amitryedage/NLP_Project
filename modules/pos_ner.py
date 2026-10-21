@@ -287,6 +287,87 @@ def render_pos_tab():
         key="btn_download_pos_table"
     )
 
+    # 9b. Syntactic Noun Phrase Chunking (Shallow Parsing)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("📦 Syntactic Noun Phrase Chunking (Shallow Parsing)")
+    st.markdown(
+        f"""
+        <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 0.95rem; color: {COLOR_TEXT}; margin-bottom: 3px;">
+                What is Shallow Parsing (Chunking)?
+            </div>
+            <div style="color: {COLOR_MUTED}; font-size: 0.88rem; line-height: 1.4;">
+                While full dependency parsing constructs an entire tree, <b>Chunking</b> extracts non-overlapping, 
+                syntactically correlated word phrases. In English, <b>Noun Chunks</b> (base noun phrases) capture 
+                core conceptual entities along with their descriptive determiners and adjectives:
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    chunks = list(doc.noun_chunks)
+    if chunks:
+        chunk_records = []
+        chunk_chips = []
+        for idx, chunk in enumerate(chunks):
+            color = PASTEL_COLORS[idx % len(PASTEL_COLORS)]
+            head_word = chunk.root.text
+            dep_role = chunk.root.dep_
+            dep_explain = spacy.explain(dep_role) or dep_role
+            chunk_chips.append(chip(chunk.text, color=color, subtitle=f"Head: {head_word} ({dep_role})"))
+            chunk_records.append({
+                "Phrase Index": idx + 1,
+                "Noun Chunk Phrase": chunk.text,
+                "Root Head Word": head_word,
+                "Root POS": chunk.root.pos_,
+                "Syntactic Dependency": dep_role,
+                "Grammatical Function": dep_explain,
+                "Token Span": f"{chunk.start} to {chunk.end}",
+                "Length (Tokens)": len(chunk)
+            })
+
+        st.markdown("**Detected Noun Chunks (Grouped Syntactic Units):**")
+        st.markdown(f'<div class="chip-container">{" ".join(chunk_chips)}</div>', unsafe_allow_html=True)
+
+        df_chunks = pd.DataFrame(chunk_records)
+        c_ch1, c_ch2 = st.columns([1, 2])
+        with c_ch1:
+            st.metric("Total Noun Chunks", len(chunks))
+            avg_chunk_len = df_chunks["Length (Tokens)"].mean()
+            st.metric("Avg Chunk Length", f"{avg_chunk_len:.1f} tokens")
+            longest_chunk = df_chunks.loc[df_chunks["Length (Tokens)"].idxmax()]["Noun Chunk Phrase"]
+            st.metric("Longest Phrase", f'"{longest_chunk[:18]}..."' if len(longest_chunk) > 18 else f'"{longest_chunk}"')
+
+        with c_ch2:
+            fig_chunks = px.bar(
+                df_chunks,
+                x="Noun Chunk Phrase",
+                y="Length (Tokens)",
+                text="Root Head Word",
+                title="Noun Phrase Token Length & Syntactic Heads",
+                color="Length (Tokens)",
+                color_continuous_scale="Purples"
+            )
+            fig_chunks.update_layout(
+                height=240,
+                margin=dict(l=20, r=20, t=35, b=20),
+                plot_bgcolor=COLOR_BG,
+                paper_bgcolor=COLOR_BG
+            )
+            st.plotly_chart(fig_chunks, use_container_width=True)
+
+        st.dataframe(df_chunks[["Phrase Index", "Noun Chunk Phrase", "Root Head Word", "Syntactic Dependency", "Grammatical Function", "Token Span"]], use_container_width=True, hide_index=True)
+        st.download_button(
+            label="📥 Download Noun Chunks (CSV)",
+            data=df_chunks.to_csv(index=False).encode("utf-8"),
+            file_name="noun_chunks_breakdown.csv",
+            mime="text/csv",
+            key="btn_download_noun_chunks"
+        )
+    else:
+        st.info("No base noun chunks identified in the active input sentence.")
+
     # 10. Educational Insights Box
     with st.expander("💡 Deep Dive: Contextual Ambiguity in POS Tagging"):
         st.markdown(

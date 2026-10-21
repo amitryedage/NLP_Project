@@ -362,6 +362,39 @@ def render_embeddings_tab():
                 unsafe_allow_html=True,
             )
 
+            # High-Dimensional Metric Comparison Expander
+            with st.expander(f"📏 High-Dimensional Distance Metric Comparison: '{word_a.title()}' vs. '{word_b.title()}'", expanded=False):
+                va = token_a.vector
+                vb = token_b.vector
+                cos_sim = float(similarity)
+                cos_dist = float(1.0 - cos_sim)
+                euclidean_dist = float(np.linalg.norm(va - vb))
+                manhattan_dist = float(np.sum(np.abs(va - vb)))
+                dot_prod = float(np.dot(va, vb))
+                norm_a = float(np.linalg.norm(va))
+                norm_b = float(np.linalg.norm(vb))
+
+                c_m1, c_m2, c_m3, c_m4 = st.columns(4)
+                with c_m1:
+                    st.metric("Cosine Similarity (cos θ)", f"{cos_sim:.4f}", help="Normalized directional alignment: u·v / (|u||v|). Range: [-1, 1]")
+                with c_m2:
+                    st.metric("Cosine Distance (1 - cos θ)", f"{cos_dist:.4f}", help="Angular separation: 0 indicates identical direction.")
+                with c_m3:
+                    st.metric("Euclidean Distance (L₂)", f"{euclidean_dist:.2f}", help="Straight-line distance in 300D space: sqrt(sum((u_i - v_i)^2))")
+                with c_m4:
+                    st.metric("Manhattan Distance (L₁)", f"{manhattan_dist:.1f}", help="Grid distance in 300D space: sum(|u_i - v_i|)")
+
+                st.markdown(
+                    f"""
+                    <div style="background-color: {COLOR_SECONDARY_BG}; border: 1px solid {COLOR_BORDER}; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.88rem; color: {COLOR_TEXT};">
+                        <b>💡 Why Cosine Similarity over Euclidean Distance in 300D Space?</b><br>
+                        In continuous embedding spaces, frequent words or polysemous terms often have larger vector magnitudes (norms: <code>|{word_a}| = {norm_a:.2f}</code>, <code>|{word_b}| = {norm_b:.2f}</code>). 
+                        Euclidean distance is sensitive to vector length, whereas Cosine Similarity normalizes out magnitude, isolating pure semantic angle.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
     # 6b. Full Cluster Pairwise Cosine Similarity Matrix
     with st.expander("📊 Full Cluster Pairwise Cosine Similarity Matrix", expanded=False):
         st.markdown(
@@ -579,28 +612,42 @@ def render_embeddings_tab():
             target_vec = t_a.vector - t_b.vector + t_c.vector
             target_norm = np.linalg.norm(target_vec)
 
-            # Candidate pool of common English words for rapid vector search
-            candidate_pool = [
-                "queen", "king", "princess", "prince", "emperor", "monarch", "crown", "ruler", "palace",
-                "man", "woman", "boy", "girl", "mother", "father", "son", "daughter", "sister", "brother",
-                "tokyo", "japan", "paris", "france", "london", "england", "berlin", "germany", "rome", "italy",
-                "colder", "cold", "warm", "warmer", "hot", "hotter", "bigger", "big", "small", "smaller", "fast", "faster",
-                "nurse", "doctor", "physician", "surgeon", "hospital", "teacher", "engineer", "scientist", "actor", "actress",
-                "apple", "banana", "fruit", "food", "car", "bus", "train", "vehicle", "city", "country", "president", "minister"
-            ]
-            # Exclude input words
+            # Open-Vocabulary Dynamic Vector Search across entire spaCy vocabulary
             input_words = {wa, wb, wc}
-            candidate_pool = [w for w in candidate_pool if w not in input_words]
+            top_predictions = []
+            try:
+                queries = np.array([target_vec])
+                keys, best_rows, q_scores = nlp.vocab.vectors.most_similar(queries, batch_size=1024, at=160)
+                seen_preds = set()
+                for key, sim_val in zip(keys[0], q_scores[0]):
+                    cand_w = nlp.vocab.strings[key].strip().lower()
+                    if cand_w.isalpha() and cand_w not in input_words and cand_w not in seen_preds and len(cand_w) > 2:
+                        seen_preds.add(cand_w)
+                        top_predictions.append((cand_w, float(sim_val)))
+                        if len(top_predictions) >= 5:
+                            break
+            except Exception:
+                top_predictions = []
 
-            scores = []
-            for cw in candidate_pool:
-                c_tok = nlp(cw)[0]
-                if c_tok and c_tok.has_vector and c_tok.vector_norm > 0:
-                    sim = np.dot(target_vec, c_tok.vector) / (target_norm * c_tok.vector_norm)
-                    scores.append((cw, float(sim)))
-
-            scores.sort(key=lambda x: x[1], reverse=True)
-            top_predictions = scores[:5]
+            # Fallback to curated candidates if vocab index is unavailable
+            if not top_predictions:
+                candidate_pool = [
+                    "queen", "king", "princess", "prince", "emperor", "monarch", "crown", "ruler", "palace",
+                    "man", "woman", "boy", "girl", "mother", "father", "son", "daughter", "sister", "brother",
+                    "tokyo", "japan", "paris", "france", "london", "england", "berlin", "germany", "rome", "italy",
+                    "colder", "cold", "warm", "warmer", "hot", "hotter", "bigger", "big", "small", "smaller", "fast", "faster",
+                    "nurse", "doctor", "physician", "surgeon", "hospital", "teacher", "engineer", "scientist", "actor", "actress",
+                    "apple", "banana", "fruit", "food", "car", "bus", "train", "vehicle", "city", "country", "president", "minister"
+                ]
+                candidate_pool = [w for w in candidate_pool if w not in input_words]
+                scores = []
+                for cw in candidate_pool:
+                    c_tok = nlp(cw)[0]
+                    if c_tok and c_tok.has_vector and c_tok.vector_norm > 0:
+                        sim = np.dot(target_vec, c_tok.vector) / (target_norm * c_tok.vector_norm)
+                        scores.append((cw, float(sim)))
+                scores.sort(key=lambda x: x[1], reverse=True)
+                top_predictions = scores[:5]
 
             st.markdown("<br><b>🏆 Predicted Analogy Solutions (Ranked by Cosine Similarity):</b>", unsafe_allow_html=True)
             res_cols = st.columns(len(top_predictions))

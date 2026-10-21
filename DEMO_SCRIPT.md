@@ -32,13 +32,15 @@
 ---
 
 ### 0:45 – 1:30 | Tab 1: Tokenization, Stopwords, Zipf's Law & N-Gram Markov LM
-* **Action:** Click on the **✂️ Tokenization** tab. Toggle **"Highlight English Stopwords"**, scroll down to the **Zipf's Law Distribution Plot**, showcase the **N-Gram Language Model** (pick a prompt word and click "Generate Continuation"), expand the **Devanagari Akshara Segmentation** demo, and point out the **Download CSV** button.
+* **Action:** Click on the **✂️ Tokenization** tab. Toggle **"Highlight English Stopwords"**, expand the **Hierarchical Word Treemap**, scroll down to the **Zipf's Law Distribution Plot**, showcase the **N-Gram Language Model** (pick a prompt word and click "Generate Continuation"), expand the **Devanagari Akshara Segmentation** demo, and point out the **Download CSV** button.
 * **Speaker:**
   > *"First is **Tokenization**, the foundational step where continuous text is segmented into discrete computational units.*
   >
   > *Notice our live token stream rendered as color-coded chips with guaranteed high-contrast dark text. If we switch between **NLTK Word Tokenizer** and **Sentence Tokenizer**, we can see how contractions like `Don't` are split into `Do` and `n't`, separating the auxiliary verb from the negative particle.*
   >
   > *With our **Stopword Filter**, we can instantly isolate non-content grammatical filler words (`the`, `is`, `in`) with real-time volume reduction percentages.*
+  >
+  > *Expand our **Hierarchical Linguistic Word Treemap**: it replaces messy static word clouds with interactive rectangular clusters grouped by grammatical category and token length.*
   >
   > *Scroll down to our **Zipf's Law Linguistic Distribution Plot**: it plots empirical word frequency against rank on log-log coordinates, visually demonstrating that word frequency is inversely proportional to rank.*
   >
@@ -48,8 +50,8 @@
 
 ---
 
-### 1:30 – 2:15 | Tab 2: Stemming, Lemmatization & Minimum Edit Distance
-* **Action:** Click on **🌱 Stem / Lemma** tab. Showcase the discrepancy chips, styled comparison table, and the **Minimum Edit Distance Matrix**.
+### 1:30 – 2:15 | Tab 2: Stemming, Lemmatization, Edit Distance & Morpheme Anatomy
+* **Action:** Click on **🌱 Stem / Lemma** tab. Showcase the discrepancy chips, styled comparison table, the **Minimum Edit Distance Matrix**, and test **Morpheme Anatomy** on `'unhappiness'`.
 * **Speaker:**
   > *"Next, we compare morphological reduction: **Stemming vs. Lemmatization**.*
   >
@@ -59,18 +61,22 @@
   >
   > *Our app automatically highlights discrepancies in pastel pink, showing students exactly where and why stemmers fail on irregular inflections like `mice` and `feet`.*
   >
-  > *Below the table, our **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculates the dynamic programming alignment grid step-by-step between any two words, showing the exact insertion, deletion, and substitution costs!"*
+  > *Below the table, our **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculates the dynamic programming alignment grid step-by-step between any two words, showing the exact insertion, deletion, and substitution costs!*
+  >
+  > *Scroll down to our **Morpheme Anatomy & Affix Inspector**: it breaks complex words like `'unhappiness'` into `[Prefix: un-]` + `[Root: happy]` + `[Suffix: -ness]`, teaching students the critical distinction between derivational and inflectional morphology!"*
 
 ---
 
-### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging, Markov Grammar Flow & DisplaCy NER
-* **Action:** Click on **🏷️ POS Tags**, scroll to the **Syntactic Dependency Tree**, expand the **POS Transition Flow Matrix**, then switch to **🔍 NER** to demonstrate the **Entity Category Filter** and **Co-occurrence Links**.
+### 2:15 – 3:00 | Tabs 3 & 4: POS Tagging, Shallow Chunking & DisplaCy NER
+* **Action:** Click on **🏷️ POS Tags**, scroll to the **Syntactic Dependency Tree**, expand the **POS Transition Flow Matrix**, showcase the **Syntactic Noun Phrase Chunking** section, then switch to **🔍 NER** to demonstrate the **Entity Category Filter** and **Co-occurrence Links**.
 * **Speaker:**
   > *"In **Tab 3**, we use spaCy's statistical tagger to classify every word into its grammatical role (Noun, Verb, Adjective, etc.) with a live Plotly frequency bar chart and human-readable Penn Treebank explanations.*
   >
   > *Scroll down to our live **Syntactic Dependency Parse Tree**, which renders curved grammatical arcs connecting Subject, Root Verb, and Direct Object.*
   >
   > *Expand our **POS Transition Probability Matrix**: it models bigram grammar flow as a Markovian heatmap, showing how likely determiners lead to nouns or verbs lead to adverbs—the core logic behind HMMs and CRFs!*
+  >
+  > *Directly below, look at our **Syntactic Noun Phrase Chunking (Shallow Parsing)** visualizer: it groups words into non-overlapping grammatical phrases like `'the entire wildlife experiment'`, identifies the root head word (`experiment`), and explains its syntactic function in the sentence.*
   >
   > *Moving to **Tab 4: Named Entity Recognition**, we integrate spaCy's DisplaCy visualizer styled with our light pastel palette. On our benchmark sentence:*
   > `'Elon Musk visited Mumbai on 5 May 2024 to announce Tesla's $2 billion investment...'`
@@ -81,7 +87,7 @@
 ---
 
 ### 3:00 – 3:55 | Tabs 5 & 6: TF-IDF, TextRank Summarizer & Vector Geometry
-* **Action:** Click on **📊 TF-IDF**, show the N-gram feature range selector `(1, 2)` for compound phrases, the **Inter-Document Similarity Heatmap**, run a live query in the **Search Engine Simulator**, and scroll to the **TextRank Extractive Summarizer**. Next, switch to **🌌 Embeddings**: show the **Top-K Nearest Neighbors Explorer**, the **Cluster Cosine Heatmap**, toggle to **3D Orbit**, and showcase the **Parallelogram Law Visualizer**.
+* **Action:** Click on **📊 TF-IDF**, show the N-gram feature range selector `(1, 2)` for compound phrases, the **Inter-Document Similarity Heatmap**, run a live query in the **Search Engine Simulator**, and scroll to the **TextRank Extractive Summarizer**. Next, switch to **🌌 Embeddings**: show the **Top-K Nearest Neighbors Explorer**, the **Distance Metric Comparison Matrix**, the **Open-Vocabulary Analogy Solver**, toggle to **3D Orbit**, and showcase the **Parallelogram Law Visualizer**.
 * **Speaker:**
   > *"In **Tab 5**, we show how computers convert text into numerical weights. Our **N-Gram Range Selector** allows extracting compound terms like `'natural language'` and `'artificial intelligence'` alongside unigrams.*
   >
@@ -91,13 +97,15 @@
   >
   > *Finally, in **Tab 6: Word Embeddings**, we extract 300-dimensional dense vectors from spaCy's `en_core_web_md`.*
   >
+  > *Notice our **Distance Metric Comparison Matrix**: it computes Cosine Similarity, Cosine Distance, Euclidean ($L_2$), and Manhattan ($L_1$) distances side-by-side, visually explaining why Cosine is preferred in 300D space due to length invariance.*
+  >
   > *With our **Top-K Nearest Neighbors Explorer**, users can search any word—like `'hospital'`—and immediately see its closest semantic neighbors like `'clinic'` and `'doctor'` ranked with similarity bars.*
   >
   > *Our **Cluster Cosine Similarity Heatmap** proves that semantic categories (Royalty, Fruits, Vehicles) form distinct high-density blocks in vector space.*
   >
   > *In the 2D projection, our **Semantic Trajectory Arrows** visually link analogical pairs like `Man ➔ King` and `Woman ➔ Queen`. You can also toggle to our **3D Interactive Orbit** to freely rotate and zoom into semantic clusters.*
   >
-  > *Even more exciting is our **Semantic Vector Arithmetic Playground**: when we compute $\text{King} - \text{Man} + \text{Woman}$, the model mathematically solves for **Queen** at the top of the leaderboard with a 78% similarity match!*
+  > *Even more exciting is our **Open-Vocabulary Semantic Analogy Solver**: it searches through thousands of words in continuous vector space to solve equations like $\text{King} - \text{Man} + \text{Woman} = \text{Queen}$ dynamically!*
   >
   > *Scroll down to our live **Parallelogram Law Visualizer**: it plots the 4 words and draws the two displacement vectors $\vec{\Delta}_1$ and $\vec{\Delta}_2$. The app measures an astonishing **94%+ directional parallelism**, geometrically proving that Word2Vec preserves semantic shifts in vector space!"*
 

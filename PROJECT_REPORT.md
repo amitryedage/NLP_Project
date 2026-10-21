@@ -69,19 +69,19 @@ NLP_Project/
 ## 5. Detailed Module Descriptions
 
 ### Module 1: Tokenization (`modules/tokenization.py`)
-* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units, linguistic distribution laws, and statistical language modeling.
-* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), spaCy rule-based tokenizer, stopword filtering, Maximum Likelihood Estimation (MLE), Laplace (Add-1) smoothing, and Devanagari Akshara regex segmentation.
-* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive Stopword Filter (highlighting or filtering non-content tokens with volume reduction %), an interactive **Zipf's Law Linguistic Distribution Plot** (empirical frequency vs. rank with log-log coordinates and ideal $1/r$ curve overlay), an **Interactive N-Gram Language Model & Next-Word Predictor (Markov LM)** with MLE vs. Laplace Add-1 smoothing, next-word candidate probability bar charts, live Markov chain text generation, bonus **Devanagari (Marathi/Hindi) Akshara Syllable & Conjunct Segmentation**, and one-click CSV token table export.
+* **Purpose:** Demonstrates splitting continuous text into discrete grammatical units, linguistic distribution laws, hierarchical word clustering, and statistical language modeling.
+* **Algorithms:** NLTK Word Tokenizer (Penn Treebank conventions), NLTK Sentence Tokenizer (Punkt unsupervised model), spaCy rule-based tokenizer, stopword filtering, Maximum Likelihood Estimation (MLE), Laplace (Add-1) smoothing, hierarchical treemap clustering, and Devanagari Akshara regex segmentation.
+* **Visuals:** Alternating pastel chips (`chip()`), token frequency counts, Lexical Diversity gauge (Type-Token Ratio - TTR), interactive Stopword Filter (highlighting or filtering non-content tokens with volume reduction %), an interactive **Zipf's Law Linguistic Distribution Plot** (empirical frequency vs. rank with log-log coordinates and ideal $1/r$ curve overlay), an interactive **Hierarchical Linguistic Word Treemap** grouping tokens by grammatical category and length, an **Interactive N-Gram Language Model & Next-Word Predictor (Markov LM)** with MLE vs. Laplace Add-1 smoothing, next-word candidate probability bar charts, live Markov chain text generation, bonus **Devanagari (Marathi/Hindi) Akshara Syllable & Conjunct Segmentation**, and one-click CSV token table export.
 
 ### Module 2: Stemming vs. Lemmatization (`modules/stemming_lemma.py`)
-* **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction and computes string edit distance.
-* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), Lancaster Stemmer, NLTK WordNet Lemmatizer (noun & verb morphological base lookup), and Levenshtein Minimum Edit Distance dynamic programming.
-* **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`), an interactive **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculating $(M+1) \times (N+1)$ alignment cost grids via Plotly heatmaps, and one-click CSV comparison table export.
+* **Purpose:** Contrasts heuristic suffix stripping with lexical vocabulary reduction, computes string edit distance, and inspects morpheme anatomy.
+* **Algorithms:** Porter Stemmer, Snowball Stemmer (English), Lancaster Stemmer, NLTK WordNet Lemmatizer (noun & verb morphological base lookup), Levenshtein Minimum Edit Distance dynamic programming, and affix rule decomposition.
+* **Visuals:** Side-by-side comparison tables color-coding discrepancies (`⚠️ Differ` in pastel pink, `✅ Match` in pastel green), visual callout chips for irregular plurals (e.g., `mice` $\rightarrow$ `mouse`, `leaves` $\rightarrow$ `leaf`, `studies` $\rightarrow$ `study`), an interactive **Minimum Edit Distance (Levenshtein Matrix) Visualizer** calculating $(M+1) \times (N+1)$ alignment cost grids via Plotly heatmaps, an interactive **Morphological Morpheme Anatomy & Affix Decomposition Inspector** (breaking down words into Prefixes, Root Lemmas, Derivational Suffixes, and Inflectional Suffixes), and one-click CSV comparison table export.
 
 ### Module 3: Part-of-Speech Tagging (`modules/pos_ner.py`)
-* **Purpose:** Assigns universal grammatical classes, fine-grained Penn Treebank tags, and syntactic dependencies.
-* **Algorithms:** spaCy transition-based dependency parser, statistical tagger, and Markovian POS transition probability calculations.
-* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), detailed definitions via `spacy.explain()`, an interactive **POS Transition Probability Matrix (Markov Grammar Flow)** heatmap ($P(\text{Tag}_t \mid \text{Tag}_{t-1})$), dominant syntactic collocation chips (e.g. `DET ➔ NOUN`, `NOUN ➔ VERB`), and one-click CSV grammatical breakdown export.
+* **Purpose:** Assigns universal grammatical classes, fine-grained Penn Treebank tags, syntactic dependencies, and shallow noun phrase chunks.
+* **Algorithms:** spaCy transition-based dependency parser, statistical tagger, Markovian POS transition probability calculations, and base noun chunk extraction (`doc.noun_chunks`).
+* **Visuals:** Dynamic color legend matching active tags, color-coded word chips with POS sub-labels, Plotly frequency distribution bar chart, interactive **Syntactic Dependency Parse Tree** (DisplaCy `style="dep"`), detailed definitions via `spacy.explain()`, an interactive **POS Transition Probability Matrix (Markov Grammar Flow)** heatmap ($P(\text{Tag}_t \mid \text{Tag}_{t-1})$), dominant syntactic collocation chips (e.g. `DET ➔ NOUN`, `NOUN ➔ VERB`), an interactive **Syntactic Noun Phrase Chunking (Shallow Parsing)** visualizer extracting head words and phrase token spans, and one-click CSV grammatical breakdown export.
 
 ### Module 4: Named Entity Recognition (`modules/pos_ner.py`)
 * **Purpose:** Identifies and classifies real-world entities into predefined semantic classes and models relation co-occurrence.
@@ -94,9 +94,9 @@ NLP_Project/
 * **Visuals:** High-density Plotly Heatmap (`Blues` colorscale) mapping vocabulary words against documents, **N-Gram Feature Extraction Range Selector** (`(1, 1)`, `(1, 2)`, `(2, 2)`), **Pairwise Inter-Document Similarity Heatmap** (`Teal` colorscale), interactive keyword selector, per-document horizontal bar charts, a live **Information Retrieval (Search Engine Simulator)** ranking corpus documents against arbitrary user queries via cosine similarity, an **Extractive Text Summarization Engine (TextRank Algorithm)** scoring sentence centrality and synthesizing concise summaries with compression metrics, and one-click CSV matrix export.
 
 ### Module 6: Word Embeddings & Vector Space (`modules/embeddings.py`)
-* **Purpose:** Illustrates semantic distance, nearest neighbor discovery, geometric vector arithmetic, and cluster cohesion in continuous space.
-* **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D} / 3\text{D}$), and Cosine Similarity.
-* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a **Full Cluster Pairwise Cosine Similarity Heatmap**, a **Top-$K$ Nearest Semantic Neighbors Explorer** with interactive similarity rankings and Viridis bar charts, a live **Semantic Vector Arithmetic Playground** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows, and one-click 2D PCA coordinate CSV export.
+* **Purpose:** Illustrates semantic distance, nearest neighbor discovery, geometric vector arithmetic, open-vocabulary analogies, and metric comparison in continuous space.
+* **Algorithms:** spaCy 300D static vectors from `en_core_web_md`, Principal Component Analysis (PCA $300\text{D} \rightarrow 2\text{D} / 3\text{D}$), Cosine Similarity, Euclidean $L_2$ Distance, Manhattan $L_1$ Distance, and open-vocabulary vector table search.
+* **Visuals:** Interactive **2D Scatter vs. 3D Vector Space Orbit** toggle (`px.scatter_3d`), semantic trajectory shift arrows, Out-of-Vocabulary (OOV) error banners, live Cosine Similarity calculator with qualitative thresholds (High, Moderate, Low), a **High-Dimensional Distance Metric Comparison Matrix** (side-by-side Cosine, Cosine Distance, Euclidean $L_2$, and Manhattan $L_1$ metrics), a **Full Cluster Pairwise Cosine Similarity Heatmap**, a **Top-$K$ Nearest Semantic Neighbors Explorer** with interactive similarity rankings and Viridis bar charts, a live **Open-Vocabulary Semantic Analogy Equation Solver** ($\vec{\text{King}} - \vec{\text{Man}} + \vec{\text{Woman}} \approx \vec{\text{Queen}}$), an interactive **2D Analogy Vector Geometry (Parallelogram Law) Visualizer** with directional parallelism metrics and displacement arrows, and one-click 2D PCA coordinate CSV export.
 
 ### Global Module: Corpus Profiler & Linguistic Readability (`app.py`)
 * **Purpose:** Real-time linguistic profiling and readability assessment for active corpus inputs.
@@ -126,6 +126,9 @@ NLP_Project/
   * Asserts Bigram Maximum Likelihood Estimation and Laplace Add-1 smoothing probability summation ($= 1.0$).
   * Asserts TextRank PageRank eigenvector convergence and positive sentence centrality scores.
   * Asserts Lexical Diversity calculations including Type-Token Ratio (TTR) and Hapax Legomena counting.
+  * Asserts Syntactic Noun Phrase chunk extraction and grammatical head identification (`doc.noun_chunks`).
+  * Asserts Morphological affix and morpheme decomposition for prefixes, base lemmas, and suffixes.
+  * Asserts High-Dimensional vector distance metrics (Cosine Similarity, Euclidean $L_2$, Manhattan $L_1$).
 
 ---
 
