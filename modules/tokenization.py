@@ -137,15 +137,15 @@ def render_tokenization_tab():
     else:  # spaCy
         nlp = load_spacy_model()
         doc = nlp(user_text)
-        for idx, t in enumerate(doc):
-            tokens.append(t.text)
+        for idx, tok in enumerate(doc):
+            tokens.append(tok.text)
             token_details.append({
                 "Index": idx + 1,
-                "Token": t.text,
-                "Length": len(t.text),
-                "Is Alpha": t.is_alpha,
-                "Is Stopword": t.is_stop,
-                "Is Punctuation": t.is_punct,
+                "Token": tok.text,
+                "Length": len(tok.text),
+                "Is Alpha": tok.is_alpha,
+                "Is Stopword": tok.is_stop,
+                "Is Punctuation": tok.is_punct,
             })
 
     # 5. Metrics Summary Cards (with Lexical Diversity / TTR & Stopword stats)
@@ -494,7 +494,7 @@ def render_tokenization_tab():
             if trigram_counts:
                 prefixes = [f"{w1} {w2}" for (w1, w2) in trigram_counts.keys()]
                 sel_prefix = st.selectbox("Select Trigram Prefix (w1, w2):", prefixes)
-                p1, p2 = sel_prefix.split()
+                p1, p2 = sel_prefix.split(" ", 1)
                 tri_cands = trigram_counts[(p1, p2)]
                 total_tri = sum(tri_cands.values())
 
