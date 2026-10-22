@@ -8,6 +8,7 @@ import numpy as np
 import plotly.express as px
 import nltk
 from utils.theme import (
+    COLOR_BG,
     PASTEL_BLUE,
     PASTEL_PINK,
     PASTEL_GREEN,

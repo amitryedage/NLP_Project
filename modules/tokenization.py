@@ -9,6 +9,7 @@ import plotly.express as px
 import nltk
 from spacy.lang.en.stop_words import STOP_WORDS as SPACY_STOP_WORDS
 from utils.theme import (
+    COLOR_BG,
     PASTEL_COLORS,
     chip,
     COLOR_MUTED,
@@ -299,8 +300,11 @@ def render_tokenization_tab():
             f"Tokens are structured by linguistic classification (Content vs. Stopwords) and token length, "
             f"with rectangle dimensions proportional to empirical frequency:"
             f"</span>",
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
+        tree_words = [t.lower() for t in tokens if any(c.isalnum() for c in t)]
+        from collections import Counter
+        word_freq = Counter(tree_words)
         if len(word_freq) >= 3:
             treemap_records = []
             for w, count in word_freq.items():
@@ -344,14 +348,14 @@ def render_tokenization_tab():
             </div>
             <div style="color: {COLOR_MUTED}; font-size: 0.88rem; line-height: 1.4;">
                 Before Neural Transformers (GPT), NLP relied on <b>N-gram Markov Language Models</b>. 
-                Using the <i>Markov Assumption</i>, the probability of the next word \(w_t\) depends only on the preceding \(N-1\) words:
-                $$P(w_t \mid w_{t-1}) = \\frac{{C(w_{t-1}, w_t)}}{{C(w_{t-1})}}$$
-                Explore empirical transition probabilities and test next-word autocompletion directly on your input text!
+                Using the <i>Markov Assumption</i>, the probability of the next word <i>w<sub>t</sub></i> depends only on the preceding <i>N-1</i> words.
+                Explore empirical transition probabilities and test next-word autocompletion directly on your input text:
             </div>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
+    st.latex(r"P(w_t \mid w_{t-1}) = \frac{C(w_{t-1}, w_t)}{C(w_{t-1})}")
 
     # Clean words for language modeling (lowercase alphanumeric words)
     import re
