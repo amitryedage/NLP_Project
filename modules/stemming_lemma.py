@@ -13,6 +13,7 @@ from utils.theme import (
     PASTEL_PINK,
     PASTEL_GREEN,
     PASTEL_YELLOW,
+    PASTEL_PURPLE,
     PASTEL_ORANGE,
     chip,
     COLOR_MUTED,

@@ -11,6 +11,7 @@ from utils.theme import (
     POS_COLOR_MAP,
     ENTITY_COLOR_MAP,
     PASTEL_BLUE,
+    PASTEL_PURPLE,
     PASTEL_COLORS,
     chip,
     COLOR_BG,
